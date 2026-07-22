@@ -15,6 +15,10 @@ public class CameraSettings
     public float Distance = 3f;
     public Vector3 TargetOffset = new Vector3(0, 1.5f, 0);
     public Vector2 VerticalLimits = new Vector2(-45f, 45f);
+    public KeyCode Key = KeyCode.V;
+    public CameraMode Mode = CameraMode.ThirdPerson;
+    public float MaxDistance = 3f;
+    public float MinDistance = 0.01f;
 }
 
 [Serializable]
@@ -22,4 +26,10 @@ public class PlayerSettings
 {
     public float Speed = 10f;
     public float Gravity = -9.81f;
+}
+
+public enum CameraMode
+{
+    FirstPerson,
+    ThirdPerson
 }

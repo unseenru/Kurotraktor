@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using Zenject;
+using DG.Tweening;
 
 public class CameraController : MonoBehaviour
 {
@@ -8,6 +10,7 @@ public class CameraController : MonoBehaviour
 
     private float _yaw;
     private float _pitch;
+    private Tween _distanceTween;
 
     public Vector3 Forward => Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
     public Vector3 Right => Vector3.ProjectOnPlane(transform.right, Vector3.up).normalized;
@@ -21,6 +24,11 @@ public class CameraController : MonoBehaviour
 
     private void LateUpdate()
     {
+        Rotation();
+        View();
+    }
+    private void Rotation()
+    {
         if (!_playerRegistry.HasTarget) return;
 
         Vector3 center = _playerRegistry.Current.transform.position + _settings.TargetOffset;
@@ -33,5 +41,46 @@ public class CameraController : MonoBehaviour
 
         transform.position = center + (rotation * new Vector3(0f, 0f, -_settings.Distance));
         transform.LookAt(center);
+    }
+    private void View()
+    {
+        if (Input.GetKeyDown(_settings.Key))
+        {
+
+            CameraMode targetMode = _settings.Mode == CameraMode.FirstPerson
+                ? CameraMode.ThirdPerson
+                : CameraMode.FirstPerson;
+
+            float targetDistance = targetMode switch
+            {
+                CameraMode.FirstPerson => _settings.MinDistance,
+                CameraMode.ThirdPerson => _settings.MaxDistance,
+                _ => _settings.MinDistance
+            };
+
+
+            if (_settings.Mode == CameraMode.FirstPerson)
+            {
+                _settings.Mode = targetMode;
+            }
+
+            _distanceTween?.Kill();
+
+ 
+            _distanceTween = DOTween.To(
+                getter: () => _settings.Distance,
+                setter: x => _settings.Distance = x,
+                endValue: targetDistance,
+                duration: 0.5f
+            )
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                if (targetMode == CameraMode.FirstPerson)
+                {
+                    _settings.Mode = targetMode;
+                }
+            });
+        }
     }
 }

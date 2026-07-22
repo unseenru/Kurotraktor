@@ -3,11 +3,12 @@ using Zenject;
 
 public class Player : MonoBehaviour
 {
+    public IPlayerMovement Movement => _movement;
     private IEntityRegistry<Player> _registry;
 
     private IPlayerMovement _movement;
 
-    public IPlayerMovement Movement => _movement;
+    
 
     [Inject]
     private void Construct(IEntityRegistry<Player> registry)
