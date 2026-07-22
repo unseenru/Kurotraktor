@@ -10,10 +10,11 @@ public class Player : MonoBehaviour
     public IPlayerMovement Movement => _movement;
 
     [Inject]
-    public void Construct(IEntityRegistry<Player> registry)
+    private void Construct(IEntityRegistry<Player> registry)
     {
         _registry = registry;
     }
+
     private void Awake()
     {
         _movement = GetComponent<IPlayerMovement>();

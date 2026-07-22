@@ -1,9 +1,11 @@
-using TMPro.Examples;
 using UnityEngine;
 using Zenject;
 
-public class GameSceneInstaller : MonoInstaller
+public class SceneInstaller : MonoInstaller
 {
+    [Header("Configs")]
+    [SerializeField] private GameSettingsSO _gameSettings;
+
     [Header("Scene References")]
     [SerializeField] private CameraController _cameraController;
 
@@ -12,36 +14,33 @@ public class GameSceneInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
+        BindSettings();
         BindInfrastructure();
-        BindPlayer();
-        BindCamera();
+        BindEntities();
         BindControllers();
     }
+
+    private void BindSettings()
+    {
+
+        Container.BindInstance(_gameSettings).AsSingle();
+        Container.BindInstance(_gameSettings.Camera).AsSingle();
+        Container.BindInstance(_gameSettings.Player).AsSingle();
+    }
+
     private void BindInfrastructure()
     {
-        Container.Bind(typeof(IEntityRegistry<>))
-                 .To(typeof(EntityRegistry<>))
-                 .AsSingle();
+        Container.Bind(typeof(IEntityRegistry<>)).To(typeof(EntityRegistry<>)).AsSingle();
     }
 
-    private void BindPlayer()
+    private void BindEntities()
     {
-        Container.Bind<Player>()
-                 .FromComponentInNewPrefab(_playerPrefab)
-                 .AsTransient();
-    }
-
-    private void BindCamera()
-    {
-        Container.Bind<CameraController>()
-                 .FromInstance(_cameraController)
-                 .AsSingle();
+        Container.Bind<Player>().FromComponentInNewPrefab(_playerPrefab).AsTransient();
+        Container.Bind<CameraController>().FromInstance(_cameraController).AsSingle();
     }
 
     private void BindControllers()
     {
-        
-        Container.BindInterfacesAndSelfTo<PlayerInputController>()
-                 .AsSingle();
+        Container.BindInterfacesAndSelfTo<PlayerInputController>().AsSingle();
     }
 }
