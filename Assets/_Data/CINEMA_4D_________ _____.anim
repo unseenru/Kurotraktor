@@ -2450,7 +2450,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/2/3/4/8/9/00
+    path: 1/2/3/4/8/9/10
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -2583,7 +2583,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/2/3/4/22
+    path: 1/2/3/4/12
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -2977,7 +2977,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/2/3/4/22/333
+    path: 1/2/3/4/12/13
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -3416,7 +3416,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/2/3/4/22/333/444
+    path: 1/2/3/4/12/13/14
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -3783,7 +3783,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/666
+    path: 1/16
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -4348,7 +4348,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/666/777
+    path: 1/16/17
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -4832,7 +4832,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/666/777/8888
+    path: 1/16/17/18
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -4911,7 +4911,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/666/777/8888/0908
+    path: 1/16/17/18/19
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -5332,7 +5332,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/34245234
+    path: 1/21
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -5906,7 +5906,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/34245234/32423423
+    path: 1/21/22
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -6426,7 +6426,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/34245234/32423423/435346543
+    path: 1/21/22/23
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -6631,7 +6631,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 1/34245234/32423423/435346543/4234135235
+    path: 1/21/22/23/24
   m_CompressedRotationCurves: []
   m_EulerCurves: []
   m_PositionCurves:
