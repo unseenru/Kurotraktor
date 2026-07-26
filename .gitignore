@@ -18,3 +18,6 @@ MemoryCaptures/
 
 .vscode/
 .idea/
+/Assets/Plugins/FMOD
+/Assets/Plugins/FMOD.meta
+/Assets/_Scenes/My
