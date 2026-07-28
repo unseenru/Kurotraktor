@@ -27,6 +27,12 @@ public class PlayerSettings
     public float Speed = 10f;
     public float Gravity = -9.81f;
 }
+[Serializable]
+public class ChickenSettings
+{
+    public float Speed = 10f;
+    public float Gravity = -9.81f;
+}
 
 public enum CameraMode
 {

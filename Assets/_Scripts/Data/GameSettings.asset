@@ -17,6 +17,10 @@ MonoBehaviour:
     Distance: 3
     TargetOffset: {x: 0, y: 1.5, z: 0}
     VerticalLimits: {x: -45, y: 45}
+    Key: 118
+    Mode: 1
+    MaxDistance: 3
+    MinDistance: 0.01
   Player:
     Speed: 10
     Gravity: -9.81

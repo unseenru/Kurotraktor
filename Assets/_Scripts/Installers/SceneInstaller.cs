@@ -26,6 +26,7 @@ public class SceneInstaller : MonoInstaller
         Container.BindInstance(_gameSettings).AsSingle();
         Container.BindInstance(_gameSettings.Camera).AsSingle();
         Container.BindInstance(_gameSettings.Player).AsSingle();
+        
     }
 
     private void BindInfrastructure()

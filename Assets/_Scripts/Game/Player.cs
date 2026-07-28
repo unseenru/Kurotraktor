@@ -8,7 +8,6 @@ public class Player : MonoBehaviour
 
     private IPlayerMovement _movement;
 
-    
 
     [Inject]
     private void Construct(IEntityRegistry<Player> registry)

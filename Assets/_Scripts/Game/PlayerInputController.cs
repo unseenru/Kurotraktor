@@ -5,7 +5,7 @@ public class PlayerInputController : ITickable
 {
     private readonly IEntityRegistry<Player> _playerRegistry;
     private readonly CameraController _cameraController;
-
+    
     public PlayerInputController(IEntityRegistry<Player> playerRegistry, CameraController cameraController)
     {
         _playerRegistry = playerRegistry;
