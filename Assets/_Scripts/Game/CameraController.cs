@@ -1,4 +1,4 @@
-using System;
+
 using UnityEngine;
 using Zenject;
 using DG.Tweening;
@@ -57,7 +57,6 @@ public class CameraController : MonoBehaviour
                 CameraMode.ThirdPerson => _settings.MaxDistance,
                 _ => _settings.MinDistance
             };
-
 
             if (_settings.Mode == CameraMode.FirstPerson)
             {
