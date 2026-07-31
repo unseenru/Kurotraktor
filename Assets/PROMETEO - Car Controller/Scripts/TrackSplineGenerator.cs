@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Splines;
@@ -6,129 +5,126 @@ using Unity.Mathematics;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.SceneManagement;
 #endif
 
 [RequireComponent(typeof(SplineContainer))]
 public class TrackSplineGenerator : MonoBehaviour
 {
-    [Header("Track Keypoints")]
-    [Tooltip("Ключевые точки вдоль трассы для направления движения")]
+    [Header("Track Guide Points")]
+    [Tooltip("Точки трассы, по которым построится маршрут")]
     [SerializeField] private Transform[] trackGuidePoints;
 
-    [Header("Road Centering (Авто-Центрирование)")]
-    [Tooltip("Автоматически смещать точки сплайна строго на центр полотна дороги")]
-    [SerializeField] private bool autoCenterOnRoad = true;
-
-    [Tooltip("Максимальная ширина дороги в метрах (для поиска обочин)")]
-    [SerializeField] private float maxRoadWidth = 25f;
-
-    [Header("Spline Generation Settings")]
+    [Header("Spline Settings")]
     [SerializeField] private bool loopTrack = true;
-    [Tooltip("Минимальное расстояние между узлами сплайна в метрах (4-6м дает отличный результат)")]
-    [SerializeField] private float pointMinDistance = 4f;
+
+    [Header("NavMesh Ground Snapping (Привязка к Y)")]
+    [Tooltip("Автоматически брать высоту Y с запеченного NavMesh, сохраняя XZ координаты точек")]
+    [SerializeField] private bool snapToNavMeshY = true;
+
+    [Tooltip("Радиус поиска поверхности NavMesh вокруг вашей точки")]
     [SerializeField] private float sampleRadius = 15f;
 
-    [ContextMenu("Generate Spline From Track Mesh")]
+    [Tooltip("Небольшой отступ по Y над дорогой (в метрах), чтобы линия не утопала в асфальте")]
+    [SerializeField] private float heightOffset = 0.05f;
+
+    [Header("Curvature Control (Контроль изгибов)")]
+    [Tooltip("Натяжение сплайна (0 = прямые отрезки, 0.2-0.3 = идеальные сглаженные повороты)")]
+    [Range(0f, 1f)]
+    [SerializeField] private float curveTension = 0.3f;
+
+    [Tooltip("Угол (в градусах), ниже которого участок считается прямой линией")]
+    [SerializeField] private float straightAngleThreshold = 10f;
+
+    [ContextMenu("Generate Spline From Points (With NavMesh Y)")]
     public void GenerateSpline()
     {
         if (trackGuidePoints == null || trackGuidePoints.Length < 2)
         {
-            Debug.LogError("[SplineGen] Укажи минимум 2-3 ориентировочные точки в массив Track Guide Points!");
+            Debug.LogError("[SplineGen] Укажи минимум 2 точки в массиве Track Guide Points!");
             return;
         }
 
         SplineContainer container = GetComponent<SplineContainer>();
+
+#if UNITY_EDITOR
+        Undo.RecordObject(container, "Generate Spline");
+#endif
+
         Spline spline = container.Spline;
         spline.Clear();
 
-        List<Vector3> calculatedCorners = new List<Vector3>();
-        int count = loopTrack ? trackGuidePoints.Length : trackGuidePoints.Length - 1;
+        int createdKnots = 0;
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < trackGuidePoints.Length; i++)
         {
-            Transform startTransform = trackGuidePoints[i];
-            Transform endTransform = trackGuidePoints[(i + 1) % trackGuidePoints.Length];
+            Transform point = trackGuidePoints[i];
+            if (point == null) continue;
 
-            if (startTransform == null || endTransform == null) continue;
+            Vector3 finalWorldPos = point.position;
 
-            if (!NavMesh.SamplePosition(startTransform.position, out NavMeshHit startHit, sampleRadius, NavMesh.AllAreas) ||
-                !NavMesh.SamplePosition(endTransform.position, out NavMeshHit endHit, sampleRadius, NavMesh.AllAreas))
+            // 1. АВТО-ПРИМАГНИЧИВАНИЕ ВЫСОТЫ Y К NAVMESH
+            if (snapToNavMeshY)
             {
-                Debug.LogError($"[SplineGen] Точка '{startTransform.name}' или '{endTransform.name}' слишком далеко от NavMesh!");
-                return;
-            }
-
-            NavMeshPath path = new NavMeshPath();
-            if (NavMesh.CalculatePath(startHit.position, endHit.position, NavMesh.AllAreas, path))
-            {
-                for (int j = 0; j < path.corners.Length; j++)
+                if (NavMesh.SamplePosition(point.position, out NavMeshHit hit, sampleRadius, NavMesh.AllAreas))
                 {
-                    Vector3 cornerPos = path.corners[j];
-
-                    // АЛГОРИТМ АВТО-ЦЕНТРИРОВАНИЯ ПО ЦЕНТРУ ДОРОГИ
-                    if (autoCenterOnRoad)
-                    {
-                        Vector3 direction = Vector3.forward;
-                        if (j < path.corners.Length - 1)
-                            direction = (path.corners[j + 1] - cornerPos).normalized;
-                        else if (j > 0)
-                            direction = (cornerPos - path.corners[j - 1]).normalized;
-
-                        cornerPos = GetRoadCenterPoint(cornerPos, direction, maxRoadWidth);
-                    }
-
-                    // Пропускаем точки, если они стоят слишком близко
-                    if (calculatedCorners.Count == 0 || Vector3.Distance(calculatedCorners[calculatedCorners.Count - 1], cornerPos) >= pointMinDistance)
-                    {
-                        calculatedCorners.Add(cornerPos);
-                    }
+                    // Сохраняем твои X и Z, а Y берем строго с поверхности NavMesh + небольшой отступ
+                    finalWorldPos = new Vector3(point.position.x, hit.position.y + heightOffset, point.position.z);
+                }
+                else
+                {
+                    Debug.LogWarning($"[SplineGen] Точка '{point.name}' находится слишком далеко от NavMesh! Использована ее исходная позиция по Y.");
                 }
             }
-        }
 
-        if (calculatedCorners.Count == 0)
-        {
-            Debug.LogError("[SplineGen] Не удалось сгенерировать ни одной точки!");
-            return;
-        }
-
-        // ЗАПИСЬ В СПЛАЙН И АВТО-СГЛАЖИВАНИЕ
-        for (int i = 0; i < calculatedCorners.Count; i++)
-        {
-            Vector3 localPos = container.transform.InverseTransformPoint(calculatedCorners[i]);
+            Vector3 localPos = container.transform.InverseTransformPoint(finalWorldPos);
             BezierKnot knot = new BezierKnot(new float3(localPos.x, localPos.y, localPos.z));
             spline.Add(knot, TangentMode.AutoSmooth);
+            createdKnots++;
         }
 
         spline.Closed = loopTrack;
 
+        // 2. НАСТРОЙКА НАТЯЖЕНИЯ И АВТО-ВЫПРЯМЛЕНИЯ ПРЯМЫХ
+        int totalKnots = spline.Count;
+        for (int i = 0; i < totalKnots; i++)
+        {
+            int prevIndex = (i - 1 + totalKnots) % totalKnots;
+            int nextIndex = (i + 1) % totalKnots;
+
+            Transform prevTransform = trackGuidePoints[prevIndex];
+            Transform currentTransform = trackGuidePoints[i];
+            Transform nextTransform = trackGuidePoints[nextIndex];
+
+            if (prevTransform == null || currentTransform == null || nextTransform == null) continue;
+
+            TrackWaypoint waypoint = currentTransform.GetComponent<TrackWaypoint>();
+            bool forceLinear = waypoint != null && waypoint.isLinear;
+
+            Vector3 dirIn = (currentTransform.position - prevTransform.position).normalized;
+            Vector3 dirOut = (nextTransform.position - currentTransform.position).normalized;
+            float angle = Vector3.Angle(dirIn, dirOut);
+
+            if (forceLinear || angle < straightAngleThreshold || curveTension <= 0.01f)
+            {
+                spline.SetTangentMode(i, TangentMode.Linear);
+            }
+            else
+            {
+                spline.SetTangentMode(i, TangentMode.AutoSmooth);
+                BezierKnot knot = spline[i];
+                knot.TangentIn *= curveTension;
+                knot.TangentOut *= curveTension;
+                spline[i] = knot;
+            }
+        }
+
 #if UNITY_EDITOR
         EditorUtility.SetDirty(container);
-        Debug.Log($"[SplineGen] Успех! Сгенерирована отцентрованная траектория. Узлов: {calculatedCorners.Count}");
+        EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        SceneView.RepaintAll();
+
+        Debug.Log($"[SplineGen] Готово! Построено {createdKnots} узлов. Высота Y идеально привязана к NavMesh.");
 #endif
-    }
-
-    // Метод ищет левый и правый край NavMesh поперек направления дороги и возвращает ровно середину
-    private Vector3 GetRoadCenterPoint(Vector3 point, Vector3 direction, float searchWidth)
-    {
-        Vector3 right = Vector3.Cross(Vector3.up, direction).normalized;
-        if (right == Vector3.zero) return point;
-
-        Vector3 leftBound = point;
-        Vector3 rightBound = point;
-
-        // Выполняем трассировку NavMesh влево и вправо до краев запеченной сетки
-        if (NavMesh.Raycast(point, point - right * searchWidth, out NavMeshHit leftHit, NavMesh.AllAreas))
-        {
-            leftBound = leftHit.position;
-        }
-
-        if (NavMesh.Raycast(point, point + right * searchWidth, out NavMeshHit rightHit, NavMesh.AllAreas))
-        {
-            rightBound = rightHit.position;
-        }
-
-        // Середина между левым и правым бордюром
-        return (leftBound + rightBound) * 0.5f;
     }
 }

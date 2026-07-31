@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class TrackWaypoint : MonoBehaviour
 {
+    [Header("Spline Curvature")]
+    [Tooltip("Сделать линию до этой точки строго прямой без изгиба")]
+    public bool isLinear = false;
+
     [Header("Speed Zone Settings")]
     [Tooltip("Нужно ли снижать скорость в зоне этого чекпоинта?")]
     public bool isSlowZone = false;
