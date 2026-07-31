@@ -11,11 +11,12 @@ public class PrometeoEditor : Editor{
 
   private PrometeoCarController prometeo;
   private SerializedObject SO;
-  //
-  //
-  //CAR SETUP
-  //
-  //
+    //
+    //
+    //CAR SETUP
+    //
+    //
+  private SerializedProperty isAi;
   private SerializedProperty maxSpeed;
   private SerializedProperty maxReverseSpeed;
   private SerializedProperty accelerationMultiplier;
@@ -79,6 +80,7 @@ public class PrometeoEditor : Editor{
     prometeo = (PrometeoCarController)target;
     SO = new SerializedObject(target);
 
+        isAi = SO.FindProperty("isAi");
     maxSpeed = SO.FindProperty("maxSpeed");
     maxReverseSpeed = SO.FindProperty("maxReverseSpeed");
     accelerationMultiplier = SO.FindProperty("accelerationMultiplier");
@@ -127,13 +129,14 @@ public class PrometeoEditor : Editor{
     GUILayout.Space(25);
     GUILayout.Label("CAR SETUP", EditorStyles.boldLabel);
     GUILayout.Space(10);
-    //
-    //
-    //CAR SETUP
-    //
-    //
-    //
-    maxSpeed.intValue = EditorGUILayout.IntSlider("Max Speed:", maxSpeed.intValue, 20, 190);
+        //
+        //
+        //CAR SETUP
+        //
+        //
+        //
+       
+        maxSpeed.intValue = EditorGUILayout.IntSlider("Max Speed:", maxSpeed.intValue, 20, 190);
     maxReverseSpeed.intValue = EditorGUILayout.IntSlider("Max Reverse Speed:", maxReverseSpeed.intValue, 10, 120);
     accelerationMultiplier.intValue = EditorGUILayout.IntSlider("Acceleration Multiplier:", accelerationMultiplier.intValue, 1, 10);
     maxSteeringAngle.intValue = EditorGUILayout.IntSlider("Max Steering Angle:", maxSteeringAngle.intValue, 10, 45);
@@ -165,18 +168,37 @@ public class PrometeoEditor : Editor{
     EditorGUILayout.PropertyField(rearRightMesh, new GUIContent("Rear Right Mesh: "));
     EditorGUILayout.PropertyField(rearRightCollider, new GUIContent("Rear Right Collider: "));
 
-    //
-    //
-    //EFFECTS
-    //
-    //
+        //
+        //
+        //EFFECTS
+        //
+        //
+        PrometeoCarController prometeo = (PrometeoCarController)target;
 
-    GUILayout.Space(25);
+        EditorGUILayout.Space(10); // Отступ сверху
+
+        SO.Update(); // (Если в твоем скрипте написано serializedObject.Update(), используй его)
+
+        // -------------------------------------------------------------
+        // Твоя строка с отрисовкой галочки:
+        EditorGUILayout.Space(5);
+        EditorGUILayout.PropertyField(isAi, new GUIContent("Is AI?"));
+        EditorGUILayout.Space(5);
+        // -------------------------------------------------------------
+
+        // ... ЗДЕСЬ ИДЕТ ОСТАЛЬНОЙ КОД РЕДАКТОРА PROMETEO (ползунки скорости и т.д.) ...
+
+        // 2. ОБЯЗАТЕЛЬНО В КОНЦЕ: Сохраняем все изменения в сценой!
+        SO.ApplyModifiedProperties();
+
+        EditorGUILayout.Space(10);
+        GUILayout.Space(25);
     GUILayout.Label("EFFECTS", EditorStyles.boldLabel);
     GUILayout.Space(10);
 
     useEffects.boolValue = EditorGUILayout.BeginToggleGroup("Use effects (particle systems)?", useEffects.boolValue);
-    GUILayout.Space(10);
+        
+        GUILayout.Space(10);
 
         EditorGUILayout.PropertyField(RLWParticleSystem, new GUIContent("Rear Left Particle System: "));
         EditorGUILayout.PropertyField(RRWParticleSystem, new GUIContent("Rear Right Particle System: "));

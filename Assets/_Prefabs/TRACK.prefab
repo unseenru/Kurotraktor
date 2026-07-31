@@ -251,7 +251,7 @@ GameObject:
   - component: {fileID: 2098369318458497597}
   - component: {fileID: 4633190295133058092}
   m_Layer: 0
-  m_Name: Prometheus_TRACK
+  m_Name: TRACK
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -315,6 +315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0fefceefe666bb4682b272ec8c5bdd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isAi: 0
   maxSpeed: 120
   maxReverseSpeed: 45
   accelerationMultiplier: 6
