@@ -9,30 +9,32 @@ using Unity.Mathematics;
 [RequireComponent(typeof(Rigidbody))]
 public class PrometeoSplineAIController : MonoBehaviour
 {
-    [Header("Spline Path")]
+    [Header("Spline Selection")]
     [SerializeField] private SplineContainer splineContainer;
+    [Tooltip("Индекс сплайна в контейнере (0, 1, 2, 3...)")]
+    [SerializeField] private int splineIndex = 0;
 
     [Header("Speed Settings")]
-    [Tooltip("Базовая скорость на прямой (км/ч)")]
-    [SerializeField] private float baseMaxSpeed = 100f;
-
-    [Header("Hard Physical Braking (Физический Стоп-Кран)")]
-    [Tooltip("Сила принудительного гашения скорости (10-20 = жесткое торможение)")]
+    [SerializeField] private float maxSpeed = 100f;
     [SerializeField] private float physicalBrakePower = 15f;
 
-    [Header("Speed Zones (TrackWaypoints)")]
-    [SerializeField] private List<TrackWaypoint> trackWaypoints = new List<TrackWaypoint>();
+    [Header("Look-Ahead Settings (Дистанция взгляда)")]
+    [Tooltip("Чем больше значение (20-30), тем более прямая траектория на скорости")]
+    [SerializeField] private float baseLookAhead = 20f;
+    [SerializeField] private float speedLookAheadFactor = 0.18f;
 
-    [Header("Look-Ahead Settings")]
-    [SerializeField] private float baseLookAhead = 10f;
-    [SerializeField] private float speedLookAheadFactor = 0.15f;
-    [SerializeField] private float steerDeadzone = 0.05f;
+    [Header("Anti-Oscillation (Гашение змейки)")]
+    [Tooltip("Сила гашения инерции поворота (чем выше, тем раньше отпускается руль)")]
+    [SerializeField] private float predictionFactor = 0.18f;
+    [Tooltip("Мертвая зона руля в градусах")]
+    [SerializeField] private float steerDeadzone = 3.0f;
+
+    [Header("Waypoints (Slow Zones)")]
+    [SerializeField] private List<TrackWaypoint> trackWaypoints = new List<TrackWaypoint>();
 
     private NavMeshAgent agent;
     private PrometeoCarController carController;
     private Rigidbody rb;
-
-    private float targetAllowedSpeed;
 
     private void Awake()
     {
@@ -42,127 +44,171 @@ public class PrometeoSplineAIController : MonoBehaviour
 
         agent.updatePosition = false;
         agent.updateRotation = false;
+        agent.updateUpAxis = false;
     }
 
     private void Update()
     {
-        if (splineContainer == null || !agent.isOnNavMesh) return;
+        if (splineContainer == null ||
+            splineContainer.Splines == null ||
+            splineIndex < 0 ||
+            splineIndex >= splineContainer.Splines.Count)
+            return;
 
-        // 1. Привязка физики к NavMesh
-        agent.nextPosition = transform.position;
-
-        // 2. Расчет целевой скорости для текущей зоны
-        targetAllowedSpeed = GetAllowedSpeedForPosition();
-
-        // 3. Вычисление точки прицела (Look-Ahead)
-        SplineUtility.GetNearestPoint(
-            splineContainer.Spline,
-            splineContainer.transform.InverseTransformPoint(transform.position),
-            out float3 nearestPointLocal,
-            out float normalizedTime
-        );
-
-        float currentSpeed = Mathf.Abs(carController.carSpeed);
-        float dynamicLookAhead = baseLookAhead + (currentSpeed * speedLookAheadFactor);
-
-        float splineLength = splineContainer.Spline.GetLength();
-        float targetDistance = ((normalizedTime * splineLength) + dynamicLookAhead) % splineLength;
-
-        Vector3 targetWorldPosition = splineContainer.transform.TransformPoint(
-            splineContainer.EvaluatePosition(targetDistance / splineLength)
-        );
-
-        agent.SetDestination(targetWorldPosition);
-
-        // 4. Рулежка
-        Vector3 desiredVelocity = agent.desiredVelocity;
-        if (desiredVelocity.sqrMagnitude < 0.01f)
+        if (!agent.isOnNavMesh)
         {
-            carController.ThrottleOff();
-            carController.ResetSteeringAngle();
+            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 3.0f, NavMesh.AllAreas))
+            {
+                agent.Warp(hit.position);
+            }
             return;
         }
 
-        Vector3 localVel = transform.InverseTransformDirection(desiredVelocity);
+        agent.nextPosition = transform.position;
 
-        if (localVel.x > steerDeadzone)
-        {
-            carController.TurnRight();
-        }
-        else if (localVel.x < -steerDeadzone)
-        {
-            carController.TurnLeft();
-        }
-        else
-        {
-            carController.ResetSteeringAngle();
-        }
+        Spline currentSpline = splineContainer.Splines[splineIndex];
+        float splineLength = currentSpline.GetLength();
+        if (splineLength <= 0f) return;
 
-        // 5. ЛОГИКА ГАЗА И ТОРМОЗА
-        if (localVel.z > 0.05f)
-        {
-            // Если скорость ПРЕВЫШАЕТ лимит — полностью сбрасываем газ!
-            if (currentSpeed > targetAllowedSpeed)
-            {
-                carController.ThrottleOff();
-                carController.Brakes();
-            }
-            else
-            {
-                carController.CancelInvoke("DecelerateCar");
-                carController.GoForward();
-            }
-        }
-        else if (localVel.z < -0.2f)
-        {
-            carController.CancelInvoke("DecelerateCar");
-            carController.GoReverse();
-        }
+        // 1. Поиск ближайшей точки на сплайне
+        SplineUtility.GetNearestPoint(
+            currentSpline,
+            splineContainer.transform.InverseTransformPoint(transform.position),
+            out _,
+            out float normalizedTime
+        );
+
+        // 2. Динамический Look-Ahead (упреждение от скорости)
+        float currentSpeed = Mathf.Abs(carController.carSpeed);
+        float dynamicLookAhead = baseLookAhead + (currentSpeed * speedLookAheadFactor);
+
+        float targetDistance = ((normalizedTime * splineLength) + dynamicLookAhead) % splineLength;
+        float targetNormalizedTime = targetDistance / splineLength;
+
+        float3 localTargetPos = SplineUtility.EvaluatePosition(currentSpline, targetNormalizedTime);
+        Vector3 worldTargetPos = splineContainer.transform.TransformPoint((Vector3)localTargetPos);
+
+        agent.SetDestination(worldTargetPos);
+
+        // 3. Выбор целевой точки
+        Vector3 finalSteerTarget;
+        float distanceToSpline = Vector3.Distance(transform.position, worldTargetPos);
+
+        if (distanceToSpline > 12f)
+            finalSteerTarget = agent.steeringTarget;
         else
-        {
-            carController.ThrottleOff();
-        }
+            finalSteerTarget = worldTargetPos;
+
+        // 4. Предиктивное руление без овершута
+        ApplyPredictiveSteering(finalSteerTarget);
+
+        // 5. Контроль скорости
+        ApplySpeedControl(currentSpeed);
     }
 
     private void FixedUpdate()
     {
-        // 6. ПРИНУДИТЕЛЬНОЕ ФИЗИЧЕСКОЕ ГАШЕНИЕ ИМПУЛЬСА (Применяется в физическом цикле)
         float currentSpeed = Mathf.Abs(carController.carSpeed);
+        float allowedSpeed = GetAllowedSpeedForPosition();
 
-        if (currentSpeed > targetAllowedSpeed + 2f && rb != null)
+        if (currentSpeed > allowedSpeed + 2f && rb != null)
         {
-            // Применяем физическую силу против вектора движения, сбивая скорость колом
-            Vector3 brakeDirection = -rb.velocity.normalized;
-            rb.AddForce(brakeDirection * physicalBrakePower, ForceMode.Acceleration);
+            rb.AddForce(-rb.velocity.normalized * physicalBrakePower, ForceMode.Acceleration);
         }
     }
 
-    // Расчет лимита скорости с учетом высоты и расстояния
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (rb != null)
+        {
+            // Сбрасываем угловое закручивание при столкновениях
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
+
+    private void ApplyPredictiveSteering(Vector3 targetPosition)
+    {
+        Vector3 localTarget = transform.InverseTransformPoint(targetPosition);
+
+        if (localTarget.z > -1f)
+        {
+            // Угол до цели в градусах (-180..180)
+            float angleToTarget = Mathf.Atan2(localTarget.x, localTarget.z) * Mathf.Rad2Deg;
+
+            // Текущая угловая скорость вращения кузова вокруг оси Y (в град/сек)
+            float turnSpeed = rb.angularVelocity.y * Mathf.Rad2Deg;
+
+            // Прогноз угла с учетом инерции вращения:
+            // Если машина уже быстро поворачивает направо, predictedAngle станет близким к 0 еще ДО достижения цели
+            float predictedAngle = angleToTarget - (turnSpeed * predictionFactor);
+
+            if (Mathf.Abs(predictedAngle) < steerDeadzone)
+            {
+                // Заранее выравниваем руль прямо, чтобы не проскочить линию
+                carController.ResetSteeringAngle();
+            }
+            else if (predictedAngle > 0f)
+            {
+                carController.TurnRight();
+            }
+            else
+            {
+                carController.TurnLeft();
+            }
+        }
+        else // Задний ход при полном развороте
+        {
+            carController.ThrottleOff();
+            carController.GoReverse();
+            carController.TurnRight();
+        }
+    }
+
+    private void ApplySpeedControl(float currentSpeed)
+    {
+        float targetSpeedLimit = GetAllowedSpeedForPosition();
+
+        if (currentSpeed > targetSpeedLimit)
+        {
+            carController.ThrottleOff();
+            carController.Brakes();
+        }
+        else
+        {
+            carController.CancelInvoke("DecelerateCar");
+            carController.GoForward();
+        }
+    }
+
     private float GetAllowedSpeedForPosition()
     {
-        float minAllowedSpeed = baseMaxSpeed;
+        float minAllowedSpeed = maxSpeed;
 
         foreach (var wp in trackWaypoints)
         {
             if (wp == null || !wp.isSlowZone) continue;
 
-            // Считаем дистанцию в 2D (игнорируем разницу по высоте Y)
-            Vector3 carPos2D = Vector3.ProjectOnPlane(transform.position, Vector3.up);
-            Vector3 wpPos2D = Vector3.ProjectOnPlane(wp.transform.position, Vector3.up);
+            float distance = Vector3.Distance(
+                Vector3.ProjectOnPlane(transform.position, Vector3.up),
+                Vector3.ProjectOnPlane(wp.transform.position, Vector3.up)
+            );
 
-            float distance = Vector3.Distance(carPos2D, wpPos2D);
-
-            // Если машина внутри зоны замедления (или подлетает к ней)
             if (distance <= wp.zoneRadius)
             {
-                float zoneLimit = baseMaxSpeed * wp.speedMultiplier;
+                float zoneLimit = maxSpeed * wp.speedMultiplier;
                 if (zoneLimit < minAllowedSpeed)
-                {
                     minAllowedSpeed = zoneLimit;
-                }
             }
         }
 
         return minAllowedSpeed;
+    }
+
+    public void SetSplineIndex(int newIndex)
+    {
+        if (splineContainer != null && newIndex >= 0 && newIndex < splineContainer.Splines.Count)
+        {
+            splineIndex = newIndex;
+        }
     }
 }
