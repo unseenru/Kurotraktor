@@ -11,23 +11,47 @@ public class PrometeoSplineAIController : MonoBehaviour
 {
     [Header("Spline Selection")]
     [SerializeField] private SplineContainer splineContainer;
-    [Tooltip("Индекс сплайна в контейнере (0, 1, 2, 3...)")]
-    [SerializeField] private int splineIndex = 0;
+    [Tooltip("Текущий индекс сплайна в контейнере (0, 1, 2, 3...)")]
+    public int splineIndex = 0;
 
     [Header("Speed Settings")]
     [SerializeField] private float maxSpeed = 100f;
     [SerializeField] private float physicalBrakePower = 15f;
 
-    [Header("Look-Ahead Settings (Дистанция взгляда)")]
-    [Tooltip("Чем больше значение (20-30), тем более прямая траектория на скорости")]
+    [Header("Look-Ahead Settings")]
     [SerializeField] private float baseLookAhead = 20f;
     [SerializeField] private float speedLookAheadFactor = 0.18f;
 
-    [Header("Anti-Oscillation (Гашение змейки)")]
-    [Tooltip("Сила гашения инерции поворота (чем выше, тем раньше отпускается руль)")]
+    [Header("Anti-Oscillation")]
     [SerializeField] private float predictionFactor = 0.18f;
-    [Tooltip("Мертвая зона руля в градусах")]
     [SerializeField] private float steerDeadzone = 3.0f;
+
+    [Header("AI Decision Timing")]
+    [SerializeField] private float minDecisionInterval = 0.4f;
+    [SerializeField] private float maxDecisionInterval = 1.0f;
+
+    [Header("Overtake & Lane Change Mechanics")]
+    [Range(0f, 100f)]
+    [Tooltip("Шанс случайной перестройки на свободной дороге")]
+    public float laneChangeProbability = 30f;
+
+    [Tooltip("Дистанция обнаружения транспорта перед капотом")]
+    [SerializeField] private float frontDetectionRange = 25f;
+
+    [Tooltip("Множитель скорости при обгоне (Газ в пол!)")]
+    [SerializeField] private float aggressiveSpeedMultiplier = 1.4f;
+
+    [Tooltip("Индексы сплайнов, доступные для перестройки")]
+    [SerializeField] private List<int> allowedLaneChangeSplines = new List<int>();
+
+    [Header("Cooperative & Yielding System")]
+    [Tooltip("Множитель скорости при уступке дороги (притормаживание)")]
+    [SerializeField] private float yieldSpeedMultiplier = 0.7f;
+    [SerializeField] private float yieldCheckDistance = 12f;
+
+    [Header("Lane Change Intervals")]
+    [SerializeField] private float minLaneChangeCooldown = 1.5f;
+    [SerializeField] private float maxLaneChangeCooldown = 4.0f;
 
     [Header("Waypoints (Slow Zones)")]
     [SerializeField] private List<TrackWaypoint> trackWaypoints = new List<TrackWaypoint>();
@@ -35,6 +59,23 @@ public class PrometeoSplineAIController : MonoBehaviour
     private NavMeshAgent agent;
     private PrometeoCarController carController;
     private Rigidbody rb;
+
+    // Таймеры и состояния
+    private float decisionTimer = 0f;
+    private float currentDecisionInterval = 0.5f;
+    private float laneChangeCooldownTimer = 0f;
+
+    // Состояния обгона и уступки
+    public bool isOvertakingBoost { get; private set; } = false;
+    private bool isDesperateOvertake = false;
+    private bool isYielding = false;
+
+    private float overtakeTimer = 0f;
+    private int targetSplineAfterOvertake = -1;
+    private int originalSplineIndex = 0;
+
+    // Трекинг соперников
+    private PrometeoSplineAIController lastCarAhead = null;
 
     private void Awake()
     {
@@ -47,13 +88,45 @@ public class PrometeoSplineAIController : MonoBehaviour
         agent.updateUpAxis = false;
     }
 
+    private void Start()
+    {
+        ResetDecisionTimer();
+        laneChangeCooldownTimer = UnityEngine.Random.Range(0.1f, minLaneChangeCooldown);
+    }
+
     private void Update()
     {
-        if (splineContainer == null ||
-            splineContainer.Splines == null ||
-            splineIndex < 0 ||
-            splineIndex >= splineContainer.Splines.Count)
-            return;
+        if (splineContainer == null || splineContainer.Splines == null) return;
+
+        // Отсчет кулдауна перестройки
+        if (laneChangeCooldownTimer > 0f)
+        {
+            laneChangeCooldownTimer -= Time.deltaTime;
+        }
+
+        // --- 1. Таймер решений AI ---
+        decisionTimer += Time.deltaTime;
+        if (decisionTimer >= currentDecisionInterval)
+        {
+            ResetDecisionTimer();
+            EvaluateAIBehaviors();
+        }
+
+        // --- 2. Обработка процесса обгона ---
+        if (isOvertakingBoost)
+        {
+            overtakeTimer -= Time.deltaTime;
+            if (overtakeTimer <= 0f)
+            {
+                if (targetSplineAfterOvertake >= 0 && targetSplineAfterOvertake < splineContainer.Splines.Count)
+                {
+                    splineIndex = targetSplineAfterOvertake;
+                }
+                isOvertakingBoost = false;
+                isDesperateOvertake = false;
+                SetRandomLaneChangeCooldown();
+            }
+        }
 
         if (!agent.isOnNavMesh)
         {
@@ -66,11 +139,11 @@ public class PrometeoSplineAIController : MonoBehaviour
 
         agent.nextPosition = transform.position;
 
+        // --- 3. Расчет целевой точки движения ---
         Spline currentSpline = splineContainer.Splines[splineIndex];
         float splineLength = currentSpline.GetLength();
         if (splineLength <= 0f) return;
 
-        // 1. Поиск ближайшей точки на сплайне
         SplineUtility.GetNearestPoint(
             currentSpline,
             splineContainer.transform.InverseTransformPoint(transform.position),
@@ -78,7 +151,6 @@ public class PrometeoSplineAIController : MonoBehaviour
             out float normalizedTime
         );
 
-        // 2. Динамический Look-Ahead (упреждение от скорости)
         float currentSpeed = Mathf.Abs(carController.carSpeed);
         float dynamicLookAhead = baseLookAhead + (currentSpeed * speedLookAheadFactor);
 
@@ -90,40 +162,194 @@ public class PrometeoSplineAIController : MonoBehaviour
 
         agent.SetDestination(worldTargetPos);
 
-        // 3. Выбор целевой точки
-        Vector3 finalSteerTarget;
         float distanceToSpline = Vector3.Distance(transform.position, worldTargetPos);
+        Vector3 finalSteerTarget = (distanceToSpline > 12f) ? agent.steeringTarget : worldTargetPos;
 
-        if (distanceToSpline > 12f)
-            finalSteerTarget = agent.steeringTarget;
-        else
-            finalSteerTarget = worldTargetPos;
-
-        // 4. Предиктивное руление без овершута
+        // --- 4. Управление скоростью и руление ---
         ApplyPredictiveSteering(finalSteerTarget);
 
-        // 5. Контроль скорости
-        ApplySpeedControl(currentSpeed);
+        float activeSpeedLimit = GetAllowedSpeedForPosition();
+
+        // Динамическое изменение скорости:
+        if (isOvertakingBoost)
+        {
+            // Обгон — газуем на максимуме!
+            activeSpeedLimit *= aggressiveSpeedMultiplier;
+        }
+        else if (isYielding)
+        {
+            // Пропускаем новый транспорт / даем обгнать — сбрасываем газ
+            activeSpeedLimit *= yieldSpeedMultiplier;
+        }
+
+        ApplySpeedControl(currentSpeed, activeSpeedLimit);
     }
 
     private void FixedUpdate()
     {
         float currentSpeed = Mathf.Abs(carController.carSpeed);
         float allowedSpeed = GetAllowedSpeedForPosition();
+        if (isOvertakingBoost) allowedSpeed *= aggressiveSpeedMultiplier;
 
-        if (currentSpeed > allowedSpeed + 2f && rb != null)
+        if (currentSpeed > allowedSpeed + 3f && rb != null)
         {
             rb.AddForce(-rb.velocity.normalized * physicalBrakePower, ForceMode.Acceleration);
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void EvaluateAIBehaviors()
     {
-        if (rb != null)
+        PrometeoSplineAIController currentCarAhead = GetCarAheadOnLane();
+
+        // Проверяем, нужно ли уступить дорогу прямо сейчас
+        isYielding = CheckIfShouldYield(currentCarAhead);
+
+        // --- СЦЕНАРИЙ 1: Транспорт прямо впереди на нашей линии ---
+        if (currentCarAhead != null)
         {
-            // Сбрасываем угловое закручивание при столкновениях
-            rb.angularVelocity = Vector3.zero;
+            // А. Тот же самый соперник блокирует путь ("Вырвался вперед тот же")
+            if (currentCarAhead == lastCarAhead)
+            {
+                // Отчаянный обгон до конца: ищем линию, даем жесткий газ и не обращаем внимания на толпу сбоку
+                TryStartOvertake(isDesperate: true);
+            }
+            // Б. Встал НОВЫЙ транспорт на нашу линию ("Вырвался другой")
+            else
+            {
+                // Сначала срабатывает isYielding (притормаживаем), но если есть куда уйти — планируем обгон
+                if (laneChangeCooldownTimer <= 0f)
+                {
+                    TryStartOvertake(isDesperate: false);
+                }
+            }
         }
+        // --- СЦЕНАРИЙ 2: Линия свободна (Рандомные перестройки) ---
+        else
+        {
+            if (!isOvertakingBoost && laneChangeCooldownTimer <= 0f && allowedLaneChangeSplines.Contains(splineIndex))
+            {
+                float roll = UnityEngine.Random.Range(0f, 100f);
+                if (roll <= laneChangeProbability)
+                {
+                    TryStartOvertake(isDesperate: false);
+                }
+            }
+        }
+
+        lastCarAhead = currentCarAhead;
+    }
+
+    private void TryStartOvertake(bool isDesperate)
+    {
+        if (isOvertakingBoost) return;
+        if (!allowedLaneChangeSplines.Contains(splineIndex)) return;
+
+        int targetLane = GetAdjacentLaneIndex();
+
+        // Если нашли куда перестроиться
+        if (targetLane != splineIndex)
+        {
+            isOvertakingBoost = true;
+            isDesperateOvertake = isDesperate;
+            originalSplineIndex = splineIndex;
+            targetSplineAfterOvertake = targetLane;
+            overtakeTimer = 3.0f; // Время перестроения на новую линию
+        }
+    }
+
+    // Проверка, стоит ли притормозить и пропустить
+    private bool CheckIfShouldYield(PrometeoSplineAIController currentCarAhead)
+    {
+        // 1. Встал НОВЫЙ транспорт прямо перед капотом
+        if (currentCarAhead != null && currentCarAhead != lastCarAhead)
+        {
+            return true;
+        }
+
+        // 2. Кто-то рядом отчаянно нас обгоняет и пытается вклиниться
+        PrometeoSplineAIController[] allCars = FindObjectsByType<PrometeoSplineAIController>(FindObjectsSortMode.None);
+        foreach (var car in allCars)
+        {
+            if (car == this) continue;
+
+            if (car.isOvertakingBoost)
+            {
+                Vector3 toCar = car.transform.position - transform.position;
+                float distance = toCar.magnitude;
+
+                // Если машина чуть впереди нас и на близкой дистанции
+                if (distance <= yieldCheckDistance && Vector3.Dot(transform.forward, toCar.normalized) > 0.2f)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private PrometeoSplineAIController GetCarAheadOnLane()
+    {
+        PrometeoSplineAIController[] allCars = FindObjectsByType<PrometeoSplineAIController>(FindObjectsSortMode.None);
+        PrometeoSplineAIController closestCar = null;
+        float minDistance = frontDetectionRange;
+
+        foreach (var car in allCars)
+        {
+            if (car == this) continue;
+
+            Vector3 dirToCar = car.transform.position - transform.position;
+            float distance = dirToCar.magnitude;
+
+            if (distance <= frontDetectionRange)
+            {
+                // Проверяем сектор спереди
+                float dot = Vector3.Dot(transform.forward, dirToCar.normalized);
+                if (dot > 0.5f && distance < minDistance)
+                {
+                    minDistance = distance;
+                    closestCar = car;
+                }
+            }
+        }
+
+        return closestCar;
+    }
+
+    private int GetAdjacentLaneIndex()
+    {
+        int totalSplines = splineContainer.Splines.Count;
+        List<int> possibleLanes = new List<int>();
+
+        int leftLane = splineIndex - 1;
+        if (leftLane >= 0 && allowedLaneChangeSplines.Contains(leftLane))
+        {
+            possibleLanes.Add(leftLane);
+        }
+
+        int rightLane = splineIndex + 1;
+        if (rightLane < totalSplines && allowedLaneChangeSplines.Contains(rightLane))
+        {
+            possibleLanes.Add(rightLane);
+        }
+
+        if (possibleLanes.Count > 0)
+        {
+            return possibleLanes[UnityEngine.Random.Range(0, possibleLanes.Count)];
+        }
+
+        return splineIndex;
+    }
+
+    private void ResetDecisionTimer()
+    {
+        decisionTimer = 0f;
+        currentDecisionInterval = UnityEngine.Random.Range(minDecisionInterval, maxDecisionInterval);
+    }
+
+    private void SetRandomLaneChangeCooldown()
+    {
+        laneChangeCooldownTimer = UnityEngine.Random.Range(minLaneChangeCooldown, maxLaneChangeCooldown);
     }
 
     private void ApplyPredictiveSteering(Vector3 targetPosition)
@@ -132,19 +358,12 @@ public class PrometeoSplineAIController : MonoBehaviour
 
         if (localTarget.z > -1f)
         {
-            // Угол до цели в градусах (-180..180)
             float angleToTarget = Mathf.Atan2(localTarget.x, localTarget.z) * Mathf.Rad2Deg;
-
-            // Текущая угловая скорость вращения кузова вокруг оси Y (в град/сек)
             float turnSpeed = rb.angularVelocity.y * Mathf.Rad2Deg;
-
-            // Прогноз угла с учетом инерции вращения:
-            // Если машина уже быстро поворачивает направо, predictedAngle станет близким к 0 еще ДО достижения цели
             float predictedAngle = angleToTarget - (turnSpeed * predictionFactor);
 
             if (Mathf.Abs(predictedAngle) < steerDeadzone)
             {
-                // Заранее выравниваем руль прямо, чтобы не проскочить линию
                 carController.ResetSteeringAngle();
             }
             else if (predictedAngle > 0f)
@@ -156,7 +375,7 @@ public class PrometeoSplineAIController : MonoBehaviour
                 carController.TurnLeft();
             }
         }
-        else // Задний ход при полном развороте
+        else
         {
             carController.ThrottleOff();
             carController.GoReverse();
@@ -164,10 +383,8 @@ public class PrometeoSplineAIController : MonoBehaviour
         }
     }
 
-    private void ApplySpeedControl(float currentSpeed)
+    private void ApplySpeedControl(float currentSpeed, float targetSpeedLimit)
     {
-        float targetSpeedLimit = GetAllowedSpeedForPosition();
-
         if (currentSpeed > targetSpeedLimit)
         {
             carController.ThrottleOff();
