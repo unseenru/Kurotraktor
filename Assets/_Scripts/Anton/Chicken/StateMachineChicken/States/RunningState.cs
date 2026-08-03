@@ -7,17 +7,18 @@ public class RunningState : ChickenState
 
     public override void Enter()
     {
-        Chicken.SetAnimation(ChickenController.ChickenAnimation.Running);
+        Chicken.ChickenAnimator.SetAnimation(ChickenAnimator.AnimationType.Running);
     }
 
     public override void Update()
     {
-        Vector3 direction = Chicken.GetFleeDirection();
-        Chicken.Move(direction, Chicken.RunSpeed);
-
-        if (Chicken.IsPlayerFarEnough())
+        if (Chicken.ChickenMovement.IsTargetFarEnough(Chicken.Settings.CalmDistance))
         {
             StateMachine.ChangeState(Chicken.StandingState);
+            return;
         }
+
+        Vector3 fleeDirection = Chicken.ChickenMovement.GetFleeDirection();
+        Chicken.ChickenMovement.Move(fleeDirection, Chicken.Settings.RunSpeed);
     }
 }

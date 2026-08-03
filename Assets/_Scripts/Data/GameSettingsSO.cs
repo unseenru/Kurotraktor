@@ -4,8 +4,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GameSettings", menuName = "Configs/GameSettings")]
 public class GameSettingsSO : ScriptableObject
 {
-    public CameraSettings Camera = new CameraSettings();
-    public PlayerSettings Player = new PlayerSettings();
+    public CameraSettings Camera = new();
+    public PlayerSettings Player = new();
+    public ChickenSettings Chicken = new();
 }
 
 [Serializable]
@@ -30,8 +31,22 @@ public class PlayerSettings
 [Serializable]
 public class ChickenSettings
 {
-    public float Speed = 10f;
+    [Header("Movement")]
+    [Min(0f)] public float WalkSpeed = 1.5f;
+    [Min(0f)] public float RunSpeed = 5f;
+    [Min(0f)] public float TurnSpeed = 8f;
     public float Gravity = -9.81f;
+    public float GroundedStickyVelocity = -2f;
+    public float DirectionEpsilon = 0.0001f;
+
+    [Header("Detection")]
+    [Min(0f)] public float FleeDistance = 5f;
+    [Min(0f)] public float CalmDistance = 7f;
+
+    [Header("State Timers (Min, Max)")]
+    public Vector2 EatingTimeRange = new(2f, 5f);
+    public Vector2 StandingTimeRange = new(1.5f, 3f);
+    public Vector2 WalkingTimeRange = new(3f, 6f);
 }
 
 public enum CameraMode

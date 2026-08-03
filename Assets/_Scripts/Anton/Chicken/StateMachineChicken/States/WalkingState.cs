@@ -2,36 +2,38 @@ using UnityEngine;
 
 public class WalkingState : ChickenState
 {
-    float timer;
-    Vector3 direction;
+    private float _timer;
+    private Vector3 _moveDirection;
 
     public WalkingState(ChickenController chicken, ChickenStateMachine stateMachine)
         : base(chicken, stateMachine) { }
 
     public override void Enter()
     {
-        timer = Random.Range(2f, 5f);
+        _timer = Random.Range(3f, 6f);
 
-        direction = Random.insideUnitSphere;
-        direction.y = 0;
-        direction.Normalize();
+        float randomAngle = Random.Range(0f, 360f);
+        _moveDirection = Quaternion.Euler(0f, randomAngle, 0f) * Vector3.forward;
 
-        Chicken.SetAnimation(ChickenController.ChickenAnimation.Walking);
+        Chicken.ChickenAnimator.SetAnimation(ChickenAnimator.AnimationType.Walking);
     }
 
     public override void Update()
     {
-        if (Chicken.IsPlayerClose())
+        if (Chicken.ChickenMovement.IsTargetClose(Chicken.Settings.FleeDistance))
         {
             StateMachine.ChangeState(Chicken.RunningState);
             return;
         }
 
-        Chicken.Move(direction, Chicken.WalkSpeed);
+        _timer -= Time.deltaTime;
 
-        timer -= Time.deltaTime;
-
-        if (timer <= 0)
+        if (_timer <= 0)
+        {
             StateMachine.ChangeState(Chicken.StandingState);
+            return;
+        }
+
+        Chicken.ChickenMovement.Move(_moveDirection, Chicken.Settings.WalkSpeed);
     }
 }

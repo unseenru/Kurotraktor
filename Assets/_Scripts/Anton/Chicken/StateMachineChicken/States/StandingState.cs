@@ -2,29 +2,28 @@ using UnityEngine;
 
 public class StandingState : ChickenState
 {
-    float timer;
+    private float _timer;
 
     public StandingState(ChickenController chicken, ChickenStateMachine stateMachine)
         : base(chicken, stateMachine) { }
 
     public override void Enter()
     {
-        timer = Random.Range(1f, 3f);
-
-        Chicken.SetAnimation(ChickenController.ChickenAnimation.Standing);
+        _timer = Random.Range(1.5f, 3f);
+        Chicken.ChickenAnimator.SetAnimation(ChickenAnimator.AnimationType.Standing);
     }
 
     public override void Update()
     {
-        if (Chicken.IsPlayerClose())
+        if (Chicken.ChickenMovement.IsTargetClose(Chicken.Settings.FleeDistance))
         {
             StateMachine.ChangeState(Chicken.RunningState);
             return;
         }
 
-        timer -= Time.deltaTime;
+        _timer -= Time.deltaTime;
 
-        if (timer <= 0)
+        if (_timer <= 0)
         {
             if (Random.value > 0.5f)
                 StateMachine.ChangeState(Chicken.WalkingState);
