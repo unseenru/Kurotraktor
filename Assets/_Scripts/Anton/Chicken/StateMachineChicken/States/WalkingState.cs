@@ -16,12 +16,7 @@ public class WalkingState : ChickenState
         direction.y = 0;
         direction.Normalize();
 
-        Chicken.SetAnimation(
-    false,
-    false,
-    true,
-    false
-);
+        Chicken.SetAnimation(ChickenController.ChickenAnimation.Walking);
     }
 
     public override void Update()
@@ -32,8 +27,7 @@ public class WalkingState : ChickenState
             return;
         }
 
-        Chicken.transform.position +=
-            direction * Chicken.WalkSpeed * Time.deltaTime;
+        Chicken.Move(direction, Chicken.WalkSpeed);
 
         timer -= Time.deltaTime;
 

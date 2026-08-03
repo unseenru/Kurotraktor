@@ -11,12 +11,7 @@ public class EatingState : ChickenState
     {
         timer = Random.Range(2f, 5f);
 
-        Chicken.SetAnimation(
-    true,  // eating
-    false,
-    false,
-    false
-);
+        Chicken.SetAnimation(ChickenController.ChickenAnimation.Eating);
     }
 
     public override void Update()

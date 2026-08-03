@@ -7,37 +7,15 @@ public class RunningState : ChickenState
 
     public override void Enter()
     {
-        Chicken.SetAnimation(
-    false,
-    false,
-    false,
-    true
-);
+        Chicken.SetAnimation(ChickenController.ChickenAnimation.Running);
     }
 
     public override void Update()
     {
-        // Направление от игрока
-        Vector3 dir = Chicken.transform.position - Chicken.Player.position;
+        Vector3 direction = Chicken.GetFleeDirection();
+        Chicken.Move(direction, Chicken.RunSpeed);
 
-        // Игнорируем высоту
-        dir.y = 0f;
-        dir.Normalize();
-
-        // Поворот в сторону движения
-        if (dir != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(dir);
-            Chicken.transform.rotation = Quaternion.Slerp(
-                Chicken.transform.rotation,
-                targetRotation,
-                8f * Time.deltaTime);
-        }
-
-        // Движение
-        Chicken.transform.position += dir * Chicken.RunSpeed * Time.deltaTime;
-
-        if (!Chicken.IsPlayerClose())
+        if (Chicken.IsPlayerFarEnough())
         {
             StateMachine.ChangeState(Chicken.StandingState);
         }
