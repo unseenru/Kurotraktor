@@ -29,7 +29,20 @@ public class VehicleController : MonoBehaviour
     [SerializeField] private float maxBrakeTorque = 3000f;
     [SerializeField] private float handbrakeTorque = 8000f;
     [SerializeField] private float maxSteerAngle = 35f;
-    [SerializeField] private float airPitchTorque = 1500f; // Для наклона Вверх / Вниз в воздухе
+    [SerializeField] private float airPitchTorque = 1500f;
+
+    [Header("Acceleration & Pitch Settings")]
+    [Tooltip("Множитель физического наклона кузова при разгоне/торможении")]
+    [SerializeField] private float bodyPitchTorque = 300f;
+
+    [Tooltip("Минимальный питч звука (холостой ход)")]
+    [SerializeField] private float minAudioPitch = 0.8f;
+
+    [Tooltip("Максимальный питч звука")]
+    [SerializeField] private float maxAudioPitch = 2.2f;
+
+    [Tooltip("Чувствительность звукового питча к ускорению")]
+    [SerializeField] private float audioPitchSensitivity = 0.05f;
 
     [Header("Commands (FSM Input)")]
     [SerializeField] private bool commandGas;
@@ -44,12 +57,15 @@ public class VehicleController : MonoBehaviour
     [SerializeField] private VehicleState currentState = VehicleState.Idle;
 
     private Rigidbody rb;
+    private Vector3 lastVelocity;
+    private float currentForwardAcceleration;
+
+    // Публичное свойство для получения текущего звукового питча (для FMOD / Audio)
+    public float CurrentAudioPitch { get; private set; } = 1f;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-
-        // Понижаем центр масс, чтобы машина не переворачивалась на каждом повороте
         rb.centerOfMass += new Vector3(0, -0.5f, 0);
     }
 
@@ -61,7 +77,26 @@ public class VehicleController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        CalculateAcceleration();
         ApplyControlAlgorithm();
+        ApplyBodyPitchFromAcceleration();
+    }
+
+    // Расчет продольного ускорения и звукового питча
+    private void CalculateAcceleration()
+    {
+        Vector3 currentVelocity = rb.velocity; // Для Unity 6+ (в старых версиях: rb.velocity)
+        Vector3 accelVector = (currentVelocity - lastVelocity) / Time.fixedDeltaTime;
+
+        // Векторное произведение дает ускорение именно по оси движения (вперед/назад)
+        currentForwardAcceleration = Vector3.Dot(accelVector, transform.forward);
+        lastVelocity = currentVelocity;
+
+        // Расчет питча для аудио на основе ускорения и текущей скорости
+        float speedFactor = currentVelocity.magnitude * 0.02f;
+        float accelFactor = Mathf.Abs(currentForwardAcceleration) * audioPitchSensitivity;
+
+        CurrentAudioPitch = Mathf.Clamp(minAudioPitch + speedFactor + accelFactor, minAudioPitch, maxAudioPitch);
     }
 
     // 1. Конечный автомат: определяем текущий режим движения
@@ -77,7 +112,6 @@ public class VehicleController : MonoBehaviour
         }
         else if (commandGas)
         {
-            // Если зажат Down и Gas — движение назад, иначе вперед
             currentState = commandDown ? VehicleState.Reversing : VehicleState.Accelerating;
         }
         else
@@ -89,7 +123,6 @@ public class VehicleController : MonoBehaviour
     // 2. Алгоритм управления физикой и колесами
     private void ApplyControlAlgorithm()
     {
-        // Расчет поворота (Влево / Вправо)
         float steerInput = 0f;
         if (commandLeft) steerInput -= 1f;
         if (commandRight) steerInput += 1f;
@@ -98,7 +131,6 @@ public class VehicleController : MonoBehaviour
         frontLeft.collider.steerAngle = currentSteerAngle;
         frontRight.collider.steerAngle = currentSteerAngle;
 
-        // Расчет газов и тормозов по состоянию FSM
         float currentMotor = 0f;
         float currentBrake = 0f;
 
@@ -117,22 +149,18 @@ public class VehicleController : MonoBehaviour
                 break;
 
             case VehicleState.Handbraking:
-                // Ручник бьет по задней оси
                 rearLeft.collider.brakeTorque = handbrakeTorque;
                 rearRight.collider.brakeTorque = handbrakeTorque;
                 break;
 
             case VehicleState.Idle:
-                // Минимальное сопротивление
                 currentBrake = 10f;
                 break;
         }
 
-        // Применяем крутящий момент на ведущую ось (задний привод)
         rearLeft.collider.motorTorque = currentMotor;
         rearRight.collider.motorTorque = currentMotor;
 
-        // Применяем рабочий тормоз на все 4 колеса
         if (currentState != VehicleState.Handbraking)
         {
             frontLeft.collider.brakeTorque = currentBrake;
@@ -141,21 +169,33 @@ public class VehicleController : MonoBehaviour
             rearRight.collider.brakeTorque = currentBrake;
         }
 
-        // Обработка команд Вверх / Вниз (для наклонов в воздухе)
         HandleAirControl();
     }
 
-    // Вспомогательная логика для Вверх/Вниз вне контакта с землей
+    // Физический наклон (Pitch) кузова при ускорении/торможении (имитация переноса массы)
+    private void ApplyBodyPitchFromAcceleration()
+    {
+        bool isGrounded = frontLeft.collider.isGrounded || frontRight.collider.isGrounded ||
+                          rearLeft.collider.isGrounded || rearRight.collider.isGrounded;
+
+        if (isGrounded && Mathf.Abs(currentForwardAcceleration) > 0.1f)
+        {
+            // При разгоне нос задирается (-X torque), при торможении нос опускается (+X torque)
+            float pitchTorque = -currentForwardAcceleration * bodyPitchTorque;
+            rb.AddRelativeTorque(Vector3.right * pitchTorque, ForceMode.Force);
+        }
+    }
+
     private void HandleAirControl()
     {
         bool isGrounded = frontLeft.collider.isGrounded || frontRight.collider.isGrounded ||
-                           rearLeft.collider.isGrounded || rearRight.collider.isGrounded;
+                          rearLeft.collider.isGrounded || rearRight.collider.isGrounded;
 
         if (!isGrounded)
         {
             float pitchInput = 0f;
-            if (commandUp) pitchInput += 1f;    // Задираем нос
-            if (commandDown) pitchInput -= 1f;  // Опускаем нос
+            if (commandUp) pitchInput += 1f;
+            if (commandDown) pitchInput -= 1f;
 
             if (Mathf.Abs(pitchInput) > 0.01f)
             {
@@ -164,7 +204,6 @@ public class VehicleController : MonoBehaviour
         }
     }
 
-    // 3. Связка трансформа 3D-модели колеса с физическим WheelCollider
     private void UpdateWheelVisuals()
     {
         SyncWheelMesh(frontLeft);

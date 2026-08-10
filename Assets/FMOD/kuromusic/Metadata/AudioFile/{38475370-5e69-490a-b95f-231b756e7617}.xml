@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{38475370-5e69-490a-b95f-231b756e7617}">
+		<property name="assetPath">
+			<value>tractor-idling-01.mp3</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>7.0800000000000001</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{f0bc5d1b-f018-4d91-ad00-225f8457bfd8}</destination>
+		</relationship>
+	</object>
+</objects>

@@ -10,6 +10,8 @@ public sealed class TestMenuController : MonoBehaviour
     [SerializeField] private GameObject soundPanel;
     [SerializeField] private GameObject graphicsPanel;
 
+    [SerializeField] private int _lvlBase=2;
+
     private GameObject[] panels;
 
     private void Awake()
@@ -28,6 +30,11 @@ public sealed class TestMenuController : MonoBehaviour
     public void StartGame()
     {
         Debug.Log("Старт игры: здесь можно подключить загрузку игровой сцены.");
+        // 1. Передаем цифру в BootstrapLoader
+        BootstrapLoader.TargetSceneIndex = _lvlBase;
+
+        // 2. Открываем сцену Bootstrap (индекс 0)
+        SceneManager.LoadScene(0);
     }
 
     public void SelectSaveSlot(int slot)
