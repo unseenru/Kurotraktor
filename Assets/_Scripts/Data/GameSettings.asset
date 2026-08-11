@@ -19,8 +19,20 @@ MonoBehaviour:
     VerticalLimits: {x: -45, y: 45}
     Key: 118
     Mode: 1
-    MaxDistance: 3
+    MaxDistance: 5
     MinDistance: 0.01
   Player:
     Speed: 10
     Gravity: -9.81
+  Chicken:
+    WalkSpeed: 1.5
+    RunSpeed: 5
+    TurnSpeed: 8
+    Gravity: -9.81
+    GroundedStickyVelocity: -2
+    DirectionEpsilon: 0.0001
+    FleeDistance: 5
+    CalmDistance: 7
+    EatingTimeRange: {x: 2, y: 5}
+    StandingTimeRange: {x: 1.5, y: 3}
+    WalkingTimeRange: {x: 3, y: 6}
