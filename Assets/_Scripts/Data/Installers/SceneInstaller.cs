@@ -11,6 +11,7 @@ public class SceneInstaller : MonoInstaller
 
     [Header("Prefabs")]
     [SerializeField] private GameObject _playerPrefab;
+    [SerializeField] private GameObject _chickenPrefab; // Префаб курицы со скриптом Chicken
 
     public override void InstallBindings()
     {
@@ -18,30 +19,43 @@ public class SceneInstaller : MonoInstaller
         BindInfrastructure();
         BindEntities();
         BindControllers();
+        BindSpawners();
     }
 
     private void BindSettings()
     {
-
         Container.BindInstance(_gameSettings).AsSingle();
         Container.BindInstance(_gameSettings.Camera).AsSingle();
         Container.BindInstance(_gameSettings.Player).AsSingle();
-        
     }
 
     private void BindInfrastructure()
     {
-        Container.Bind(typeof(IEntityRegistry<>)).To(typeof(EntityRegistry<>)).AsSingle();
+        Container.Bind(typeof(IEntityRegistry<IEntity>)).To(typeof(EntityRegistry<IEntity>)).AsSingle();
     }
-
     private void BindEntities()
     {
-        Container.Bind<Player>().FromComponentInNewPrefab(_playerPrefab).AsTransient();
-        Container.Bind<CameraController>().FromInstance(_cameraController).AsSingle();
-    }
+        Container.Bind<Player>().FromComponentInNewPrefab(_playerPrefab).AsSingle();
+        Container.Bind<IEntity>().To<Player>().FromResolve();
 
+        // Добавляем привязку для машины на сцене:
+        Container.Bind<Vechicle>().FromComponentInHierarchy().AsSingle();
+        Container.Bind<IEntity>().To<Vechicle>().FromResolve();
+
+        Container.Bind<CameraController>().FromInstance(_cameraController).AsSingle();
+
+        Container.BindFactory<Chicken, Chicken.Factory>()
+            .FromComponentInNewPrefab(_chickenPrefab)
+            .AsTransient();
+    }
     private void BindControllers()
     {
         Container.BindInterfacesAndSelfTo<PlayerInputController>().AsSingle();
+    }
+
+    private void BindSpawners()
+    {
+        // Регистрация спавнера как IInitializable, чтобы он отработал при старте
+        Container.BindInterfacesAndSelfTo<ChickenSpawner>().AsSingle();
     }
 }

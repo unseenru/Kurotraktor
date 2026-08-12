@@ -12,6 +12,7 @@ using System;
 
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class PrometeoCarController : MonoBehaviour
 {
@@ -161,6 +162,7 @@ public class PrometeoCarController : MonoBehaviour
       float RLWextremumSlip;
       WheelFrictionCurve RRwheelFriction;
       float RRWextremumSlip;
+
 
     // Start is called before the first frame update
     void Start()

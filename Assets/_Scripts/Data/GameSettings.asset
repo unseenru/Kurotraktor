@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Camera:
     Sensitivity: 2
-    Distance: 3
+    Distance: 5
     TargetOffset: {x: 0, y: 1.5, z: 0}
     VerticalLimits: {x: -45, y: 45}
     Key: 118
@@ -31,8 +31,8 @@ MonoBehaviour:
     Gravity: -9.81
     GroundedStickyVelocity: -2
     DirectionEpsilon: 0.0001
-    FleeDistance: 5
-    CalmDistance: 7
+    FleeDistance: 15
+    CalmDistance: 20
     EatingTimeRange: {x: 2, y: 5}
     StandingTimeRange: {x: 1.5, y: 3}
     WalkingTimeRange: {x: 3, y: 6}

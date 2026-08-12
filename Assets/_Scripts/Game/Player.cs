@@ -1,16 +1,16 @@
 using UnityEngine;
 using Zenject;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IEntity
 {
     public IPlayerMovement Movement => _movement;
-    private IEntityRegistry<Player> _registry;
+    public Transform Transform => transform;
 
+    private IEntityRegistry<IEntity> _registry; // Изменили с Player на IEntity
     private IPlayerMovement _movement;
 
-
     [Inject]
-    private void Construct(IEntityRegistry<Player> registry)
+    private void Construct(IEntityRegistry<IEntity> registry) // Изменили тип параметра
     {
         _registry = registry;
     }

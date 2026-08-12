@@ -28,10 +28,10 @@ public class ChickenController : MonoBehaviour
         InitStateMachine();
     }
 
-    public void SetPlayer(Player player)
+    public void SetTarget(IEntity entity)
     {
-        if (player != null)
-            ChickenMovement.SetPlayer(player.transform);
+        if (entity != null)
+            ChickenMovement.SetTarget(entity.Transform);
     }
 
     private void InitStateMachine()
