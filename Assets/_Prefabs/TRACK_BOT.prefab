@@ -692,11 +692,11 @@ MonoBehaviour:
   maxSpeed: 190
   maxReverseSpeed: 70
   accelerationMultiplier: 6
-  maxSteeringAngle: 35
-  steeringSpeed: 0.1
+  maxSteeringAngle: 20
+  steeringSpeed: 0.5
   brakeForce: 300
   decelerationMultiplier: 2
-  handbrakeDriftMultiplier: 8
+  handbrakeDriftMultiplier: 10
   bodyMassCenter: {x: 0, y: 0, z: 0}
   frontLeftMesh: {fileID: 6302686550260795021}
   frontLeftCollider: {fileID: 5319945923153332332}
@@ -770,7 +770,7 @@ MonoBehaviour:
   steerDeadzone: 0.1
   minDecisionInterval: 0.4
   maxDecisionInterval: 1
-  laneChangeProbability: 5
+  laneChangeProbability: 70
   frontDetectionRange: 5
   aggressiveSpeedMultiplier: 1.2
   allowedLaneChangeSplines: 000000000100000002000000

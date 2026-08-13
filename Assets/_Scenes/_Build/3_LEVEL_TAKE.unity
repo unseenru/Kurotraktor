@@ -174,6 +174,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 2
@@ -193,6 +201,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -259,6 +271,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 0
@@ -278,6 +298,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -306,11 +330,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8079408831759010810, guid: a91f7e55c9e237843be49f6cfeec70f8, type: 3}
       propertyPath: m_LocalScale.x
-      value: 100
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8079408831759010810, guid: a91f7e55c9e237843be49f6cfeec70f8, type: 3}
       propertyPath: m_LocalScale.z
-      value: 100
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8079408831759010810, guid: a91f7e55c9e237843be49f6cfeec70f8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -409,6 +433,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 1
@@ -428,6 +460,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -494,6 +530,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 0
@@ -513,6 +557,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -579,6 +627,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 1
@@ -598,6 +654,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -758,6 +818,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (9)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 1
@@ -777,6 +845,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -843,6 +915,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 1
@@ -862,6 +942,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -1023,6 +1107,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 0
@@ -1042,6 +1134,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -1108,6 +1204,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (14)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 1
@@ -1127,6 +1231,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -1193,6 +1301,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (11)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 0
@@ -1212,6 +1328,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -1278,6 +1398,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (15)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 0
@@ -1297,6 +1425,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -1363,6 +1495,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 0
@@ -1382,6 +1522,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -1646,6 +1790,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (12)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 2
@@ -1665,6 +1817,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -1731,6 +1887,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 2
@@ -1750,6 +1914,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -1884,6 +2052,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_BOT (13)
       objectReference: {fileID: 0}
+    - target: {fileID: 5450809871942592670, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: isRace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: splineIndex
       value: 1
@@ -1903,6 +2079,10 @@ PrefabInstance:
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: yieldCheckDistance
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
+      propertyPath: laneChangeProbability
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6615251593952713912, guid: 05fddb8f28236084ea99f294a3f5aa42, type: 3}
       propertyPath: trackWaypoints.Array.size
@@ -2057,6 +2237,18 @@ PrefabInstance:
     - target: {fileID: 1129198997422914418, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
       propertyPath: m_Name
       value: TRACK_PLAYER
+      objectReference: {fileID: 0}
+    - target: {fileID: 1129198997422914418, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4633190295133058092, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
+      propertyPath: steeringSpeed
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4633190295133058092, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
+      propertyPath: maxSteeringAngle
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 7941147712754495746, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
       propertyPath: m_LocalPosition.x
