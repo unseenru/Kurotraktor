@@ -18,7 +18,7 @@ public class CameraSettings
     public Vector2 VerticalLimits = new Vector2(-45f, 45f);
     public KeyCode Key = KeyCode.V;
     public CameraMode Mode = CameraMode.ThirdPerson;
-    public float MaxDistance = 3f;
+    public float MaxDistance = 10f;
     public float MinDistance = 0.01f;
 }
 

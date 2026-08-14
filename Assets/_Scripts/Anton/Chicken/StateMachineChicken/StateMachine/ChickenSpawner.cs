@@ -24,7 +24,7 @@ public class ChickenSpawner : IInitializable
                 if (spline.Closed)
                 {
                     // Рандомное количество кур от 30 до 50 (включительно)
-                    int chickenCount = Random.Range(100, 200);
+                    int chickenCount = Random.Range(40, 50);
 
                     for (int i = 0; i < chickenCount; i++)
                     {
