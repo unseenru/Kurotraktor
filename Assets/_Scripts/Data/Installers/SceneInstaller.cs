@@ -44,6 +44,7 @@ public class SceneInstaller : MonoInstaller
 
         Container.Bind<CameraController>().FromInstance(_cameraController).AsSingle();
 
+        if(_chickenPrefab != null) 
         Container.BindFactory<Chicken, Chicken.Factory>()
             .FromComponentInNewPrefab(_chickenPrefab)
             .AsTransient();
@@ -55,7 +56,7 @@ public class SceneInstaller : MonoInstaller
 
     private void BindSpawners()
     {
-        // Регистрация спавнера как IInitializable, чтобы он отработал при старте
-        Container.BindInterfacesAndSelfTo<ChickenSpawner>().AsSingle();
+        if (_chickenPrefab != null)
+            Container.BindInterfacesAndSelfTo<ChickenSpawner>().AsSingle();
     }
 }

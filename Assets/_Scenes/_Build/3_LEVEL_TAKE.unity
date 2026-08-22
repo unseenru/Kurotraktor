@@ -96,8 +96,8 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: bb97fb629f51b2343b1a6dc3c6ac70cd, type: 2}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 04788b549441ae649b1b6e757244b663, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -324,6 +324,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 184722238040154582, guid: a91f7e55c9e237843be49f6cfeec70f8, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 3152eef775272cf4faa6c09b7672b6a0, type: 2}
     - target: {fileID: 4145082147122604345, guid: a91f7e55c9e237843be49f6cfeec70f8, type: 3}
       propertyPath: m_Name
       value: '[PLANE]'

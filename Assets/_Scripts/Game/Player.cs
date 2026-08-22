@@ -3,6 +3,7 @@ using Zenject;
 
 public class Player : MonoBehaviour, IEntity
 {
+    
     public IPlayerMovement Movement => _movement;
     public Transform Transform => transform;
 

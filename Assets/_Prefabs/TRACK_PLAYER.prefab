@@ -322,9 +322,9 @@ MonoBehaviour:
   isAi: 0
   maxSpeed: 190
   maxReverseSpeed: 70
-  accelerationMultiplier: 6
-  maxSteeringAngle: 35
-  steeringSpeed: 0.1
+  accelerationMultiplier: 10
+  maxSteeringAngle: 20
+  steeringSpeed: 0.8
   brakeForce: 300
   decelerationMultiplier: 2
   handbrakeDriftMultiplier: 8

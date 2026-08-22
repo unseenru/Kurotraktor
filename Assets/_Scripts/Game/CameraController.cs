@@ -1,4 +1,3 @@
-
 using DG.Tweening;
 using System.Linq;
 using UnityEngine;
@@ -13,11 +12,16 @@ public class CameraController : MonoBehaviour
     private float _pitch;
     private Tween _distanceTween;
 
-    public Vector3 Forward => Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
-    public Vector3 Right => Vector3.ProjectOnPlane(transform.right, Vector3.up).normalized;
+    public Vector3 Forward =>
+        Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+
+    public Vector3 Right =>
+        Vector3.ProjectOnPlane(transform.right, Vector3.up).normalized;
 
     [Inject]
-    public void Construct(IEntityRegistry<IEntity> playerRegistry, CameraSettings settings)
+    public void Construct(
+        IEntityRegistry<IEntity> playerRegistry,
+        CameraSettings settings)
     {
         _playerRegistry = playerRegistry;
         _settings = settings;
@@ -28,61 +32,77 @@ public class CameraController : MonoBehaviour
         Rotation();
         View();
     }
+
     private void Rotation()
     {
-        // Берем игрока из коллекции AllEntities
-        Player player = _playerRegistry.AllEntities.OfType<Player>().FirstOrDefault();
-        if (player == null) return;
+        Player player = _playerRegistry.AllEntities
+            .OfType<Player>()
+            .FirstOrDefault(x =>
+                x != null &&
+                x.gameObject.activeInHierarchy);
 
-        Vector3 center = player.transform.position + _settings.TargetOffset;
+        if (player == null)
+            return;
 
-        _yaw += Input.GetAxis("Mouse X") * _settings.Sensitivity;
-        _pitch -= Input.GetAxis("Mouse Y") * _settings.Sensitivity;
-        _pitch = Mathf.Clamp(_pitch, _settings.VerticalLimits.x, _settings.VerticalLimits.y);
+        Vector3 center =
+            player.transform.position +
+            _settings.TargetOffset;
 
-        Quaternion rotation = Quaternion.Euler(_pitch, _yaw, 0f);
+        _yaw +=
+            Input.GetAxis("Mouse X") *
+            _settings.Sensitivity;
 
-        transform.position = center + (rotation * new Vector3(0f, 0f, -_settings.Distance));
+        _pitch -=
+            Input.GetAxis("Mouse Y") *
+            _settings.Sensitivity;
+
+        _pitch = Mathf.Clamp(
+            _pitch,
+            _settings.VerticalLimits.x,
+            _settings.VerticalLimits.y);
+
+        Quaternion rotation =
+            Quaternion.Euler(_pitch, _yaw, 0f);
+
+        transform.position =
+            center +
+            rotation * new Vector3(
+                0f,
+                0f,
+                -_settings.Distance);
+
         transform.LookAt(center);
     }
+
     private void View()
     {
-        if (Input.GetKeyDown(_settings.Key))
-        {
+        if (!Input.GetKeyDown(_settings.Key))
+            return;
 
-            CameraMode targetMode = _settings.Mode == CameraMode.FirstPerson
+        CameraMode targetMode =
+            _settings.Mode == CameraMode.FirstPerson
                 ? CameraMode.ThirdPerson
                 : CameraMode.FirstPerson;
 
-            float targetDistance = targetMode switch
-            {
-                CameraMode.FirstPerson => _settings.MinDistance,
-                CameraMode.ThirdPerson => _settings.MaxDistance,
-                _ => _settings.MinDistance
-            };
+        float targetDistance =
+            targetMode == CameraMode.FirstPerson
+                ? _settings.MinDistance
+                : _settings.MaxDistance;
 
-            if (_settings.Mode == CameraMode.FirstPerson)
-            {
-                _settings.Mode = targetMode;
-            }
+        _settings.Mode = targetMode;
 
-            _distanceTween?.Kill();
+        _distanceTween?.Kill();
 
- 
-            _distanceTween = DOTween.To(
-                getter: () => _settings.Distance,
-                setter: x => _settings.Distance = x,
-                endValue: targetDistance,
-                duration: 0.5f
-            )
-            .SetEase(Ease.OutQuad)
-            .OnComplete(() =>
-            {
-                if (targetMode == CameraMode.FirstPerson)
-                {
-                    _settings.Mode = targetMode;
-                }
-            });
-        }
+        _distanceTween = DOTween.To(
+                () => _settings.Distance,
+                value => _settings.Distance = value,
+                targetDistance,
+                0.5f)
+            .SetEase(Ease.OutQuad);
+    }
+
+    private void OnDestroy()
+    {
+        _distanceTween?.Kill();
     }
 }
