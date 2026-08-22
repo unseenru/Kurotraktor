@@ -1,12 +1,13 @@
+using System.Linq;
 using UnityEngine;
 using Zenject;
 
 public class PlayerInputController : ITickable
 {
-    private readonly IEntityRegistry<Player> _playerRegistry;
+    private readonly IEntityRegistry<IEntity> _playerRegistry;
     private readonly CameraController _cameraController;
     
-    public PlayerInputController(IEntityRegistry<Player> playerRegistry, CameraController cameraController)
+    public PlayerInputController(IEntityRegistry<IEntity> playerRegistry, CameraController cameraController)
     {
         _playerRegistry = playerRegistry;
         _cameraController = cameraController;
@@ -14,7 +15,9 @@ public class PlayerInputController : ITickable
 
     public void Tick()
     {
-        if (!_playerRegistry.HasTarget) return;
+        // Берем игрока из коллекции AllEntities
+        Player player = _playerRegistry.AllEntities.OfType<Player>().FirstOrDefault();
+        if (player == null) return;
 
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
@@ -24,6 +27,6 @@ public class PlayerInputController : ITickable
         if (moveDirection.sqrMagnitude > 1f)
             moveDirection.Normalize();
 
-        _playerRegistry.Current.Movement.Move(moveDirection);
+        player.Movement.Move(moveDirection);
     }
 }

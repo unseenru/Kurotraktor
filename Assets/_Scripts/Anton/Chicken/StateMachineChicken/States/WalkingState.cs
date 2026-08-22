@@ -16,6 +16,7 @@ public class WalkingState : ChickenState
         _moveDirection = Quaternion.Euler(0f, randomAngle, 0f) * Vector3.forward;
 
         Chicken.ChickenAnimator.SetAnimation(ChickenAnimator.AnimationType.Walking);
+        Chicken.ChickenMovement.SetMovementMode(MovementMode.Walk);
     }
 
     public override void Update()
@@ -34,6 +35,6 @@ public class WalkingState : ChickenState
             return;
         }
 
-        Chicken.ChickenMovement.Move(_moveDirection, Chicken.Settings.WalkSpeed);
+        Chicken.ChickenMovement.Move(_moveDirection);
     }
 }

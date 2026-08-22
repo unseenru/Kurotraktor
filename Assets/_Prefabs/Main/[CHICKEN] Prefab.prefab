@@ -84,12 +84,12 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: efbbc9c7e04c20347b6cce54320e9912, type: 2}
+  - {fileID: 2100000, guid: b4543466b8e64db439729ff3eeae6667, type: 2}
   - {fileID: 2100000, guid: efbbc9c7e04c20347b6cce54320e9912, type: 2}
   - {fileID: 2100000, guid: 15a1ab02bce35e14e800d7b01b06441d, type: 2}
   - {fileID: 2100000, guid: 78a6ccb8332154544989d1a0c1126650, type: 2}
-  - {fileID: 2100000, guid: efbbc9c7e04c20347b6cce54320e9912, type: 2}
-  - {fileID: 2100000, guid: 78a6ccb8332154544989d1a0c1126650, type: 2}
+  - {fileID: 2100000, guid: 5f3ff2794f56bbb4890b79e64380f3b7, type: 2}
+  - {fileID: 2100000, guid: e3653d8be8a18444c8eda7a2e92b7042, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -512,6 +512,7 @@ GameObject:
   - component: {fileID: 3136968700515268019}
   - component: {fileID: 218459342733776180}
   - component: {fileID: 2440932803654817330}
+  - component: {fileID: 5048353823875179422}
   m_Layer: 0
   m_Name: '[CHICKEN] Prefab'
   m_TagString: Untagged
@@ -614,13 +615,25 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
+  m_Height: 0.2
+  m_Radius: 0.2
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1.05, z: 0}
+--- !u!114 &5048353823875179422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4505734340842329029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6eb260b0c53f2374e85eccacf580112f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4735976905279134350
 GameObject:
   m_ObjectHideFlags: 0

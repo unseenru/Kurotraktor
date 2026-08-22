@@ -8,6 +8,7 @@ public class RunningState : ChickenState
     public override void Enter()
     {
         Chicken.ChickenAnimator.SetAnimation(ChickenAnimator.AnimationType.Running);
+        Chicken.ChickenMovement.SetMovementMode(MovementMode.Flee);
     }
 
     public override void Update()
@@ -19,6 +20,6 @@ public class RunningState : ChickenState
         }
 
         Vector3 fleeDirection = Chicken.ChickenMovement.GetFleeDirection();
-        Chicken.ChickenMovement.Move(fleeDirection, Chicken.Settings.RunSpeed);
+        Chicken.ChickenMovement.Move(fleeDirection);
     }
 }
