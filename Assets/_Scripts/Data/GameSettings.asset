@@ -22,7 +22,7 @@ MonoBehaviour:
     MaxDistance: 5
     MinDistance: 0.01
   Player:
-    Speed: 10
+    Speed: 5
     Gravity: -9.81
   Chicken:
     TurnSpeed: 8

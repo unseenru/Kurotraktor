@@ -2032,6 +2032,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4d7729d75b80bd45b847fa180c53c8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isOnSeat: 0
+  _playerAnimator: {fileID: 1317041803}
   _gameSettings: {fileID: 11400000, guid: 3c1694854b700d74ca4ecfeb33643a77, type: 2}
   _cameraController: {fileID: 2116291381}
   _playerPrefab: {fileID: 1336178075}
@@ -9641,6 +9643,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1313470448}
   m_CullTransparentMesh: 1
+--- !u!95 &1317041803 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 9054974627178093478, guid: 73bc42c461d98824abd63f847c5ef710, type: 3}
+  m_PrefabInstance: {fileID: 1336178074}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1320230545
 PrefabInstance:
   m_ObjectHideFlags: 0

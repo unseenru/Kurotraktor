@@ -5,6 +5,8 @@ public class SceneInstaller : MonoInstaller
 {
     [SerializeField] private bool _isOnSeat;
 
+    [SerializeField] private Animator _playerAnimator;
+
     [Header("Configs")]
     [SerializeField] private GameSettingsSO _gameSettings;
 
@@ -37,6 +39,8 @@ public class SceneInstaller : MonoInstaller
     }
     private void BindEntities()
     {
+        Container.Bind<Animator>().FromInstance(_playerAnimator).AsSingle();
+
         Container.Bind<Player>().FromComponentInNewPrefab(_playerPrefab).AsSingle();
         Container.Bind<IEntity>().To<Player>().FromResolve();
 
