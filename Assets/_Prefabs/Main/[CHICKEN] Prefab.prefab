@@ -513,6 +513,7 @@ GameObject:
   - component: {fileID: 218459342733776180}
   - component: {fileID: 2440932803654817330}
   - component: {fileID: 5048353823875179422}
+  - component: {fileID: 9125945110878379117}
   m_Layer: 0
   m_Name: '[CHICKEN] Prefab'
   m_TagString: Untagged
@@ -596,6 +597,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 397bfc8f6c46a73448716f2d54acc3a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _audio: {fileID: 9125945110878379117}
 --- !u!143 &2440932803654817330
 CharacterController:
   m_ObjectHideFlags: 0
@@ -634,6 +636,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6eb260b0c53f2374e85eccacf580112f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &9125945110878379117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4505734340842329029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73623238d91b90f4f85c9b5a952c2a3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultEvent:
+    Guid:
+      Data1: 1472786177
+      Data2: 1280340174
+      Data3: -518945141
+      Data4: 944801057
+    Path: event:/Chicken
+  fleeEvent1:
+    Guid:
+      Data1: 385806244
+      Data2: 1192026417
+      Data3: -1435485768
+      Data4: -1856398939
+    Path: event:/Chicken_run
+  fleeEvent2:
+    Guid:
+      Data1: 385806244
+      Data2: 1192026417
+      Data3: -1435485768
+      Data4: -1856398939
+    Path: event:/Chicken_run
+  minPitchOffset: -0.3
+  maxPitchOffset: 0.3
 --- !u!1 &4735976905279134350
 GameObject:
   m_ObjectHideFlags: 0

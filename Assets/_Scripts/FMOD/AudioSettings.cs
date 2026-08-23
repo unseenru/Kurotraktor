@@ -15,6 +15,10 @@ public class AudioSettings
     private const string MUSIC_KEY = "MusicVolume";
     private const string SFX_KEY = "SFXVolume";
 
+    private const string EventMenu = "event:/Menu&Base_Music";
+    private const string EventBase = "event:/Menu&Base_Music";
+    private const string EventLevel = "event:/Arena_4";
+
     private Bus _masterBus;
     private Bus _musicBus;
     private Bus _sfxBus;
@@ -23,7 +27,7 @@ public class AudioSettings
     {
         _masterBus = RuntimeManager.GetBus("bus:/");
         _musicBus = RuntimeManager.GetBus("bus:/Music");
-        _sfxBus = RuntimeManager.GetBus("bus:/");
+        _sfxBus = RuntimeManager.GetBus("bus:/FX");
 
         // ֿנטלוםÿול דנמלךמסעü טח PlayerPrefs ןנט סמחהאםטט
         SetMasterVolume(GetMasterVolume());
@@ -38,13 +42,13 @@ public class AudioSettings
         switch (clip)
         {
             case MusicClip.Menu:
-                RuntimeManager.PlayOneShot("event:/Menu");
+                RuntimeManager.PlayOneShot(EventMenu);
                 break;
             case MusicClip.Base:
-                RuntimeManager.PlayOneShot("event:/Menu");
+                RuntimeManager.PlayOneShot(EventBase);
                 break;
             case MusicClip.Level:
-                RuntimeManager.PlayOneShot("event:/Menu");
+                RuntimeManager.PlayOneShot(EventLevel);
                 break;
         }
     }

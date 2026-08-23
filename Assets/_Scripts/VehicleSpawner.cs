@@ -1,15 +1,21 @@
 using System.Linq;
+using FMODUnity;
 using UnityEngine;
 using Zenject;
 
 public class VehicleSpawner : MonoBehaviour
 {
+    [Header("Vehicle")]
     [SerializeField] private GameObject _vehicleObject;
     [SerializeField] private GameObject _vehiclePlayerObject;
     [SerializeField] private Component[] _vehiclePlayerComponents;
 
+    [Header("Interaction")]
     [SerializeField] private float _interactionDistance = 2f;
     [SerializeField] private KeyCode _interactionKey = KeyCode.E;
+
+    [Header("Audio")]
+    [SerializeField] private EventReference _interactionEvent;
 
     private IEntityRegistry<IEntity> _entityRegistry;
 
@@ -69,10 +75,20 @@ public class VehicleSpawner : MonoBehaviour
             _vehicleObject.SetActive(true);
         }
 
+        PlayerFootstepAudio footstepAudio =
+            player.GetComponent<PlayerFootstepAudio>();
+
+        if (footstepAudio != null)
+            footstepAudio.StopFootsteps();
+
+        PlayerFootstepAudio.isOnSeat = true;
+
         player.gameObject.SetActive(false);
 
         _vehiclePlayerObject.SetActive(true);
         SetVehiclePlayerComponentsActive(true);
+
+        PlayInteractionSound();
     }
 
     private void TryExitVehicle()
@@ -106,12 +122,30 @@ public class VehicleSpawner : MonoBehaviour
 
         exitPosition.y = player.transform.position.y;
 
+        PlayerFootstepAudio footstepAudio =
+            player.GetComponent<PlayerFootstepAudio>();
+
+        if (footstepAudio != null)
+            footstepAudio.StopFootsteps();
+
         SetVehiclePlayerComponentsActive(false);
 
         _vehiclePlayerObject.SetActive(false);
 
         player.transform.position = exitPosition;
         player.gameObject.SetActive(true);
+
+        PlayerFootstepAudio.isOnSeat = false;
+    }
+
+    private void PlayInteractionSound()
+    {
+        if (_interactionEvent.IsNull)
+            return;
+
+        RuntimeManager.PlayOneShot(
+            _interactionEvent,
+            transform.position);
     }
 
     private Vector3 GetInteractionPosition()
@@ -138,7 +172,7 @@ public class VehicleSpawner : MonoBehaviour
         {
             if (component == null)
                 continue;
-            
+
             switch (component)
             {
                 case Behaviour behaviour:

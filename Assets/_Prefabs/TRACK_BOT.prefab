@@ -818,11 +818,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trackEvent:
     Guid:
-      Data1: -671038688
-      Data2: 1120937353
-      Data3: 1960402311
-      Data4: 1210093195
-    Path: event:/track
+      Data1: 168746566
+      Data2: 1145773944
+      Data3: -1929068911
+      Data4: -599286390
+    Path: event:/Track
   minPitch: 1
   maxPitch: 4
   maxSpeed: 150

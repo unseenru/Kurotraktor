@@ -11,6 +11,8 @@ public enum MovementMode
 [RequireComponent(typeof(CharacterController))]
 public class ChickenMovement : MonoBehaviour
 {
+    [SerializeField] private ChickenAudio _audio;
+
     private CharacterController _controller;
     private ChickenSettings _settings;
     private IEntityRegistry<IEntity> _entityRegistry;
@@ -27,6 +29,9 @@ public class ChickenMovement : MonoBehaviour
     private float _individualDistanceOffset;  // Отклонение дистанции (в пределах +-5м)
     private float _individualFleeAngleOffset;  // Сдвиг угла побега
     private float _individualSpeedMultiplier;  // Физическая форма (множитель скорости)
+
+    
+    private MovementMode _currentMovementMode;
 
     [Inject]
     private void Construct(IEntityRegistry<IEntity> registry)
@@ -103,6 +108,9 @@ public class ChickenMovement : MonoBehaviour
     {
         if (_settings == null) return;
 
+        bool modeChanged = _currentMovementMode != mode;
+        _currentMovementMode = mode;
+
         SpeedProfileSettings profile = mode switch
         {
             MovementMode.Walk => _settings.WalkProfile,
@@ -112,6 +120,21 @@ public class ChickenMovement : MonoBehaviour
         };
 
         ApplySpeedProfile(profile);
+
+        if (!modeChanged || _audio == null)
+            return;
+
+        switch (mode)
+        {
+            case MovementMode.Flee:
+                _audio.PlayFlee();
+                break;
+
+            case MovementMode.Walk:
+            case MovementMode.SeekFood:
+                _audio.PlayDefault();
+                break;
+        }
     }
 
     /// <summary>

@@ -1,9 +1,12 @@
 using UnityEngine;
 using Zenject;
 
-public class MenuMusicController : MonoBehaviour
+public class MusicController : MonoBehaviour
 {
+    [SerializeField] private MusicClip _musicClip;
+
     private AudioSettings _audioSettings;
+
 
     [Inject]
     public void Construct(AudioSettings audioSettings)
@@ -13,6 +16,6 @@ public class MenuMusicController : MonoBehaviour
 
     private void Start()
     {
-        _audioSettings.PlayMusic(MusicClip.Menu);
+        _audioSettings.PlayMusic(_musicClip);
     }
 }
