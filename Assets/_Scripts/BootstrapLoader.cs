@@ -5,10 +5,14 @@ using UnityEngine.UI;
 
 public class BootstrapLoader : MonoBehaviour
 {
-    // Сюда записываем индекс сцены, которую нужно загрузить
+    // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     public static int TargetSceneIndex = 1;
 
     [SerializeField] private float minWaitTime = 1.0f;
+    [Header("Optional scene UI")]
+    [SerializeField] private Canvas bootstrapCanvas;
+    [SerializeField] private Image backgroundImage;
+    [SerializeField] private RectTransform fillRect;
     private RectTransform _fillRect;
 
     private void Awake()
@@ -24,6 +28,13 @@ public class BootstrapLoader : MonoBehaviour
 
     private void CreateBootstrapUI()
     {
+        if (bootstrapCanvas != null && fillRect != null)
+        {
+            bootstrapCanvas.sortingOrder = 32767;
+            _fillRect = fillRect;
+            return;
+        }
+
         GameObject canvasGO = new GameObject("[BootstrapCanvas]");
         Canvas canvas = canvasGO.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -32,15 +43,18 @@ public class BootstrapLoader : MonoBehaviour
         CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920, 1080);
+        scaler.matchWidthOrHeight = 1f;
 
         GameObject bgScreen = new GameObject("BG_Screen");
         bgScreen.transform.SetParent(canvasGO.transform, false);
         Image bgScreenImg = bgScreen.AddComponent<Image>();
         bgScreenImg.color = Color.black;
         RectTransform screenRect = bgScreen.GetComponent<RectTransform>();
-        screenRect.anchorMin = Vector2.zero;
-        screenRect.anchorMax = Vector2.one;
-        screenRect.sizeDelta = Vector2.zero;
+        screenRect.anchorMin = screenRect.anchorMax = new Vector2(0.5f, 0.5f);
+        screenRect.sizeDelta = new Vector2(1920f, 1080f);
+        AspectRatioFitter aspectFitter = bgScreen.AddComponent<AspectRatioFitter>();
+        aspectFitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+        aspectFitter.aspectRatio = 16f / 9f;
 
         GameObject barBg = new GameObject("Bar_BG");
         barBg.transform.SetParent(canvasGO.transform, false);
@@ -69,7 +83,7 @@ public class BootstrapLoader : MonoBehaviour
         AsyncOperation op = SceneManager.LoadSceneAsync(TargetSceneIndex);
         if (op == null)
         {
-            Debug.LogError($"[Bootstrap] Сцена с индексом {TargetSceneIndex} не найдена!");
+            Debug.LogError($"[Bootstrap] пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ {TargetSceneIndex} пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!");
             yield break;
         }
 
