@@ -1,3 +1,4 @@
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,6 +12,7 @@ public class PrometeoSplineAIController : MonoBehaviour
 {
     [Header("Spline Selection")]
     [SerializeField] private SplineContainer splineContainer;
+
     [Tooltip("Текущий индекс сплайна в контейнере (0, 1, 2, 3...)")]
     public int splineIndex = 0;
 
@@ -51,6 +53,7 @@ public class PrometeoSplineAIController : MonoBehaviour
     [Header("Cooperative & Yielding System")]
     [Tooltip("Множитель скорости при уступке дороги (притормаживание)")]
     [SerializeField] private float yieldSpeedMultiplier = 0.7f;
+
     [SerializeField] private float yieldCheckDistance = 12f;
 
     [Header("Lane Change Intervals")]
@@ -60,6 +63,16 @@ public class PrometeoSplineAIController : MonoBehaviour
     [Header("Waypoints (Slow Zones)")]
     [SerializeField] private List<TrackWaypoint> trackWaypoints = new List<TrackWaypoint>();
 
+    [Header("Stuck Recovery")]
+    [Tooltip("Скорость ниже этого значения считается практически остановкой")]
+    [SerializeField] private float stuckSpeedThreshold = 0.1f;
+
+    [Tooltip("Сколько секунд машина должна стоять, прежде чем начать восстановление")]
+    [SerializeField] private float stuckTime = 1.0f;
+
+    [Tooltip("На сколько градусов повернуть машину при застревании")]
+    [SerializeField] private float stuckTurnAngle = 45f;
+
     private NavMeshAgent agent;
     private PrometeoCarController carController;
     private Rigidbody rb;
@@ -68,6 +81,9 @@ public class PrometeoSplineAIController : MonoBehaviour
     private float decisionTimer = 0f;
     private float currentDecisionInterval = 0.5f;
     private float laneChangeCooldownTimer = 0f;
+
+    // Таймер застревания
+    private float stuckTimer = 0f;
 
     // Состояния обгона и уступки
     public bool isOvertakingBoost { get; private set; } = false;
@@ -94,7 +110,9 @@ public class PrometeoSplineAIController : MonoBehaviour
     private void Start()
     {
         ResetDecisionTimer();
-        laneChangeCooldownTimer = UnityEngine.Random.Range(0.1f, minLaneChangeCooldown);
+
+        laneChangeCooldownTimer =
+            UnityEngine.Random.Range(0.1f, minLaneChangeCooldown);
 
         // Мгновенная телепортация и выравнивание при старте
         if (snapToSplineOnStart)
@@ -108,11 +126,21 @@ public class PrometeoSplineAIController : MonoBehaviour
     /// </summary>
     private void AlignToSplineOnStart()
     {
-        if (splineContainer == null || splineContainer.Splines == null || splineContainer.Splines.Count <= splineIndex) return;
+        if (splineContainer == null ||
+            splineContainer.Splines == null ||
+            splineContainer.Splines.Count <= splineIndex)
+        {
+            return;
+        }
 
         Spline currentSpline = splineContainer.Splines[splineIndex];
+
         float splineLength = currentSpline.GetLength();
-        if (splineLength <= 0f) return;
+
+        if (splineLength <= 0f)
+        {
+            return;
+        }
 
         // Находим ближайшую точку на сплайне
         SplineUtility.GetNearestPoint(
@@ -123,23 +151,48 @@ public class PrometeoSplineAIController : MonoBehaviour
         );
 
         // Рассчитываем позицию и вектор направления целевой точки
-        float targetDistance = ((normalizedTime * splineLength) + baseLookAhead) % splineLength;
-        float targetNormalizedTime = targetDistance / splineLength;
+        float targetDistance =
+            ((normalizedTime * splineLength) + baseLookAhead) % splineLength;
 
-        float3 localTargetPos = SplineUtility.EvaluatePosition(currentSpline, targetNormalizedTime);
-        Vector3 worldTargetPos = splineContainer.transform.TransformPoint((Vector3)localTargetPos);
+        float targetNormalizedTime =
+            targetDistance / splineLength;
+
+        float3 localTargetPos =
+            SplineUtility.EvaluatePosition(
+                currentSpline,
+                targetNormalizedTime
+            );
+
+        Vector3 worldTargetPos =
+            splineContainer.transform.TransformPoint(
+                (Vector3)localTargetPos
+            );
 
         // 1. Телепортируем машину на ближайшую точку сплайна
-        float3 localNearestPos = SplineUtility.EvaluatePosition(currentSpline, normalizedTime);
-        Vector3 worldNearestPos = splineContainer.transform.TransformPoint((Vector3)localNearestPos);
+        float3 localNearestPos =
+            SplineUtility.EvaluatePosition(
+                currentSpline,
+                normalizedTime
+            );
+
+        Vector3 worldNearestPos =
+            splineContainer.transform.TransformPoint(
+                (Vector3)localNearestPos
+            );
 
         transform.position = worldNearestPos;
 
         // 2. Поворачиваем машину ровно в сторону целевой точки
-        Vector3 targetDirection = (worldTargetPos - worldNearestPos).normalized;
+        Vector3 targetDirection =
+            (worldTargetPos - worldNearestPos).normalized;
+
         if (targetDirection != Vector3.zero)
         {
-            transform.rotation = Quaternion.LookRotation(targetDirection, Vector3.up);
+            transform.rotation =
+                Quaternion.LookRotation(
+                    targetDirection,
+                    Vector3.up
+                );
         }
 
         // 3. Синхронизируем NavMeshAgent и сбрасываем лишнюю инерцию
@@ -157,7 +210,11 @@ public class PrometeoSplineAIController : MonoBehaviour
 
     private void Update()
     {
-        if (splineContainer == null || splineContainer.Splines == null) return;
+        if (splineContainer == null ||
+            splineContainer.Splines == null)
+        {
+            return;
+        }
 
         // Отсчет кулдауна перестройки
         if (laneChangeCooldownTimer > 0f)
@@ -167,6 +224,7 @@ public class PrometeoSplineAIController : MonoBehaviour
 
         // --- 1. Таймер решений AI ---
         decisionTimer += Time.deltaTime;
+
         if (decisionTimer >= currentDecisionInterval)
         {
             ResetDecisionTimer();
@@ -177,33 +235,49 @@ public class PrometeoSplineAIController : MonoBehaviour
         if (isOvertakingBoost)
         {
             overtakeTimer -= Time.deltaTime;
+
             if (overtakeTimer <= 0f)
             {
-                if (targetSplineAfterOvertake >= 0 && targetSplineAfterOvertake < splineContainer.Splines.Count)
+                if (targetSplineAfterOvertake >= 0 &&
+                    targetSplineAfterOvertake < splineContainer.Splines.Count)
                 {
                     splineIndex = targetSplineAfterOvertake;
                 }
+
                 isOvertakingBoost = false;
                 isDesperateOvertake = false;
+
                 SetRandomLaneChangeCooldown();
             }
         }
 
         if (!agent.isOnNavMesh)
         {
-            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 3.0f, NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(
+                    transform.position,
+                    out NavMeshHit hit,
+                    3.0f,
+                    NavMesh.AllAreas))
             {
                 agent.Warp(hit.position);
             }
+
             return;
         }
 
         agent.nextPosition = transform.position;
 
         // --- 3. Расчет целевой точки движения ---
-        Spline currentSpline = splineContainer.Splines[splineIndex];
-        float splineLength = currentSpline.GetLength();
-        if (splineLength <= 0f) return;
+        Spline currentSpline =
+            splineContainer.Splines[splineIndex];
+
+        float splineLength =
+            currentSpline.GetLength();
+
+        if (splineLength <= 0f)
+        {
+            return;
+        }
 
         SplineUtility.GetNearestPoint(
             currentSpline,
@@ -212,24 +286,53 @@ public class PrometeoSplineAIController : MonoBehaviour
             out float normalizedTime
         );
 
-        float currentSpeed = Mathf.Abs(carController.carSpeed);
-        float dynamicLookAhead = baseLookAhead + (currentSpeed * speedLookAheadFactor);
+        float currentSpeed =
+            Mathf.Abs(carController.carSpeed);
 
-        float targetDistance = ((normalizedTime * splineLength) + dynamicLookAhead) % splineLength;
-        float targetNormalizedTime = targetDistance / splineLength;
+        // Проверяем, не застряла ли машина
+        HandleStuckRecovery(currentSpeed);
 
-        float3 localTargetPos = SplineUtility.EvaluatePosition(currentSpline, targetNormalizedTime);
-        Vector3 worldTargetPos = splineContainer.transform.TransformPoint((Vector3)localTargetPos);
+        float dynamicLookAhead =
+            baseLookAhead +
+            (currentSpeed * speedLookAheadFactor);
+
+        float targetDistance =
+            ((normalizedTime * splineLength) +
+             dynamicLookAhead) %
+            splineLength;
+
+        float targetNormalizedTime =
+            targetDistance / splineLength;
+
+        float3 localTargetPos =
+            SplineUtility.EvaluatePosition(
+                currentSpline,
+                targetNormalizedTime
+            );
+
+        Vector3 worldTargetPos =
+            splineContainer.transform.TransformPoint(
+                (Vector3)localTargetPos
+            );
 
         agent.SetDestination(worldTargetPos);
 
-        float distanceToSpline = Vector3.Distance(transform.position, worldTargetPos);
-        Vector3 finalSteerTarget = (distanceToSpline > 12f) ? agent.steeringTarget : worldTargetPos;
+        float distanceToSpline =
+            Vector3.Distance(
+                transform.position,
+                worldTargetPos
+            );
+
+        Vector3 finalSteerTarget =
+            (distanceToSpline > 12f)
+                ? agent.steeringTarget
+                : worldTargetPos;
 
         // --- 4. Управление скоростью и руление ---
         ApplyPredictiveSteering(finalSteerTarget);
 
-        float activeSpeedLimit = GetAllowedSpeedForPosition();
+        float activeSpeedLimit =
+            GetAllowedSpeedForPosition();
 
         if (isOvertakingBoost)
         {
@@ -240,26 +343,86 @@ public class PrometeoSplineAIController : MonoBehaviour
             activeSpeedLimit *= yieldSpeedMultiplier;
         }
 
-        ApplySpeedControl(currentSpeed, activeSpeedLimit);
+        ApplySpeedControl(
+            currentSpeed,
+            activeSpeedLimit
+        );
     }
 
     private void FixedUpdate()
     {
-        float currentSpeed = Mathf.Abs(carController.carSpeed);
-        float allowedSpeed = GetAllowedSpeedForPosition();
-        if (isOvertakingBoost) allowedSpeed *= aggressiveSpeedMultiplier;
+        float currentSpeed =
+            Mathf.Abs(carController.carSpeed);
 
-        if (currentSpeed > allowedSpeed + 3f && rb != null)
+        float allowedSpeed =
+            GetAllowedSpeedForPosition();
+
+        if (isOvertakingBoost)
         {
-            rb.AddForce(-rb.velocity.normalized * physicalBrakePower, ForceMode.Acceleration);
+            allowedSpeed *= aggressiveSpeedMultiplier;
+        }
+
+        if (currentSpeed > allowedSpeed + 3f &&
+            rb != null)
+        {
+            rb.AddForce(
+                -rb.velocity.normalized *
+                physicalBrakePower,
+                ForceMode.Acceleration
+            );
+        }
+    }
+
+    /// <summary>
+    /// Проверяет, не застряла ли машина.
+    /// Если скорость меньше порога в течение заданного времени,
+    /// поворачивает машину на заданный угол в случайную сторону.
+    /// </summary>
+    private void HandleStuckRecovery(float currentSpeed)
+    {
+        if (currentSpeed < stuckSpeedThreshold)
+        {
+            stuckTimer += Time.deltaTime;
+
+            if (stuckTimer >= stuckTime)
+            {
+                stuckTimer = 0f;
+
+                // Случайно выбираем левый или правый поворот
+                float direction =
+                    UnityEngine.Random.value > 0.5f
+                        ? 1f
+                        : -1f;
+
+                Quaternion recoveryRotation =
+                    rb.rotation *
+                    Quaternion.Euler(
+                        0f,
+                        stuckTurnAngle * direction,
+                        0f
+                    );
+
+                rb.MoveRotation(recoveryRotation);
+
+                // Даём машине ещё раз газ
+                carController.GoForward();
+            }
+        }
+        else
+        {
+            // Машина снова начала двигаться —
+            // сбрасываем таймер застревания.
+            stuckTimer = 0f;
         }
     }
 
     private void EvaluateAIBehaviors()
     {
-        PrometeoSplineAIController currentCarAhead = GetCarAheadOnLane();
+        PrometeoSplineAIController currentCarAhead =
+            GetCarAheadOnLane();
 
-        isYielding = CheckIfShouldYield(currentCarAhead);
+        isYielding =
+            CheckIfShouldYield(currentCarAhead);
 
         if (currentCarAhead != null)
         {
@@ -277,9 +440,13 @@ public class PrometeoSplineAIController : MonoBehaviour
         }
         else
         {
-            if (!isOvertakingBoost && laneChangeCooldownTimer <= 0f && allowedLaneChangeSplines.Contains(splineIndex))
+            if (!isOvertakingBoost &&
+                laneChangeCooldownTimer <= 0f &&
+                allowedLaneChangeSplines.Contains(splineIndex))
             {
-                float roll = UnityEngine.Random.Range(0f, 100f);
+                float roll =
+                    UnityEngine.Random.Range(0f, 100f);
+
                 if (roll <= laneChangeProbability)
                 {
                     TryStartOvertake(isDesperate: false);
@@ -292,38 +459,66 @@ public class PrometeoSplineAIController : MonoBehaviour
 
     private void TryStartOvertake(bool isDesperate)
     {
-        if (isOvertakingBoost) return;
-        if (!allowedLaneChangeSplines.Contains(splineIndex)) return;
+        if (isOvertakingBoost)
+        {
+            return;
+        }
 
-        int targetLane = GetAdjacentLaneIndex();
+        if (!allowedLaneChangeSplines.Contains(splineIndex))
+        {
+            return;
+        }
+
+        int targetLane =
+            GetAdjacentLaneIndex();
 
         if (targetLane != splineIndex)
         {
             isOvertakingBoost = true;
             isDesperateOvertake = isDesperate;
-            targetSplineAfterOvertake = targetLane;
+
+            targetSplineAfterOvertake =
+                targetLane;
+
             overtakeTimer = 3.0f;
         }
     }
 
-    private bool CheckIfShouldYield(PrometeoSplineAIController currentCarAhead)
+    private bool CheckIfShouldYield(
+        PrometeoSplineAIController currentCarAhead)
     {
-        if (currentCarAhead != null && currentCarAhead != lastCarAhead)
+        if (currentCarAhead != null &&
+            currentCarAhead != lastCarAhead)
         {
             return true;
         }
 
-        PrometeoSplineAIController[] allCars = FindObjectsByType<PrometeoSplineAIController>(FindObjectsSortMode.None);
+        PrometeoSplineAIController[] allCars =
+            FindObjectsByType<PrometeoSplineAIController>(
+                FindObjectsSortMode.None
+            );
+
         foreach (var car in allCars)
         {
-            if (car == this) continue;
+            if (car == this)
+            {
+                continue;
+            }
 
             if (car.isOvertakingBoost)
             {
-                Vector3 toCar = car.transform.position - transform.position;
-                float distance = toCar.magnitude;
+                Vector3 toCar =
+                    car.transform.position -
+                    transform.position;
 
-                if (distance <= yieldCheckDistance && Vector3.Dot(transform.forward, toCar.normalized) > 0.2f)
+                float distance =
+                    toCar.magnitude;
+
+                if (distance <= yieldCheckDistance &&
+                    Vector3.Dot(
+                        transform.forward,
+                        toCar.normalized
+                    ) > 0.2f)
                 {
                     return true;
                 }
@@ -335,21 +530,40 @@ public class PrometeoSplineAIController : MonoBehaviour
 
     private PrometeoSplineAIController GetCarAheadOnLane()
     {
-        PrometeoSplineAIController[] allCars = FindObjectsByType<PrometeoSplineAIController>(FindObjectsSortMode.None);
+        PrometeoSplineAIController[] allCars =
+            FindObjectsByType<PrometeoSplineAIController>(
+                FindObjectsSortMode.None
+            );
+
         PrometeoSplineAIController closestCar = null;
-        float minDistance = frontDetectionRange;
+
+        float minDistance =
+            frontDetectionRange;
 
         foreach (var car in allCars)
         {
-            if (car == this) continue;
+            if (car == this)
+            {
+                continue;
+            }
 
-            Vector3 dirToCar = car.transform.position - transform.position;
-            float distance = dirToCar.magnitude;
+            Vector3 dirToCar =
+                car.transform.position -
+                transform.position;
+
+            float distance =
+                dirToCar.magnitude;
 
             if (distance <= frontDetectionRange)
             {
-                float dot = Vector3.Dot(transform.forward, dirToCar.normalized);
-                if (dot > 0.5f && distance < minDistance)
+                float dot =
+                    Vector3.Dot(
+                        transform.forward,
+                        dirToCar.normalized
+                    );
+
+                if (dot > 0.5f &&
+                    distance < minDistance)
                 {
                     minDistance = distance;
                     closestCar = car;
@@ -362,24 +576,38 @@ public class PrometeoSplineAIController : MonoBehaviour
 
     private int GetAdjacentLaneIndex()
     {
-        int totalSplines = splineContainer.Splines.Count;
-        List<int> possibleLanes = new List<int>();
+        int totalSplines =
+            splineContainer.Splines.Count;
 
-        int leftLane = splineIndex - 1;
-        if (leftLane >= 0 && allowedLaneChangeSplines.Contains(leftLane))
+        List<int> possibleLanes =
+            new List<int>();
+
+        int leftLane =
+            splineIndex - 1;
+
+        if (leftLane >= 0 &&
+            allowedLaneChangeSplines.Contains(leftLane))
         {
             possibleLanes.Add(leftLane);
         }
 
-        int rightLane = splineIndex + 1;
-        if (rightLane < totalSplines && allowedLaneChangeSplines.Contains(rightLane))
+        int rightLane =
+            splineIndex + 1;
+
+        if (rightLane < totalSplines &&
+            allowedLaneChangeSplines.Contains(rightLane))
         {
             possibleLanes.Add(rightLane);
         }
 
         if (possibleLanes.Count > 0)
         {
-            return possibleLanes[UnityEngine.Random.Range(0, possibleLanes.Count)];
+            return possibleLanes[
+                UnityEngine.Random.Range(
+                    0,
+                    possibleLanes.Count
+                )
+            ];
         }
 
         return splineIndex;
@@ -388,25 +616,49 @@ public class PrometeoSplineAIController : MonoBehaviour
     private void ResetDecisionTimer()
     {
         decisionTimer = 0f;
-        currentDecisionInterval = UnityEngine.Random.Range(minDecisionInterval, maxDecisionInterval);
+
+        currentDecisionInterval =
+            UnityEngine.Random.Range(
+                minDecisionInterval,
+                maxDecisionInterval
+            );
     }
 
     private void SetRandomLaneChangeCooldown()
     {
-        laneChangeCooldownTimer = UnityEngine.Random.Range(minLaneChangeCooldown, maxLaneChangeCooldown);
+        laneChangeCooldownTimer =
+            UnityEngine.Random.Range(
+                minLaneChangeCooldown,
+                maxLaneChangeCooldown
+            );
     }
 
-    private void ApplyPredictiveSteering(Vector3 targetPosition)
+    private void ApplyPredictiveSteering(
+        Vector3 targetPosition)
     {
-        Vector3 localTarget = transform.InverseTransformPoint(targetPosition);
+        Vector3 localTarget =
+            transform.InverseTransformPoint(
+                targetPosition
+            );
 
         if (localTarget.z > -1f)
         {
-            float angleToTarget = Mathf.Atan2(localTarget.x, localTarget.z) * Mathf.Rad2Deg;
-            float turnSpeed = rb.angularVelocity.y * Mathf.Rad2Deg;
-            float predictedAngle = angleToTarget - (turnSpeed * predictionFactor);
+            float angleToTarget =
+                Mathf.Atan2(
+                    localTarget.x,
+                    localTarget.z
+                ) * Mathf.Rad2Deg;
 
-            if (Mathf.Abs(predictedAngle) < steerDeadzone)
+            float turnSpeed =
+                rb.angularVelocity.y *
+                Mathf.Rad2Deg;
+
+            float predictedAngle =
+                angleToTarget -
+                (turnSpeed * predictionFactor);
+
+            if (Mathf.Abs(predictedAngle) <
+                steerDeadzone)
             {
                 carController.ResetSteeringAngle();
             }
@@ -427,7 +679,9 @@ public class PrometeoSplineAIController : MonoBehaviour
         }
     }
 
-    private void ApplySpeedControl(float currentSpeed, float targetSpeedLimit)
+    private void ApplySpeedControl(
+        float currentSpeed,
+        float targetSpeedLimit)
     {
         if (currentSpeed > targetSpeedLimit)
         {
@@ -436,29 +690,50 @@ public class PrometeoSplineAIController : MonoBehaviour
         }
         else
         {
-            carController.CancelInvoke("DecelerateCar");
+            carController.CancelInvoke(
+                "DecelerateCar"
+            );
+
             carController.GoForward();
         }
     }
 
     private float GetAllowedSpeedForPosition()
     {
-        float minAllowedSpeed = maxSpeed;
+        float minAllowedSpeed =
+            maxSpeed;
 
         foreach (var wp in trackWaypoints)
         {
-            if (wp == null || !wp.isSlowZone) continue;
+            if (wp == null ||
+                !wp.isSlowZone)
+            {
+                continue;
+            }
 
-            float distance = Vector3.Distance(
-                Vector3.ProjectOnPlane(transform.position, Vector3.up),
-                Vector3.ProjectOnPlane(wp.transform.position, Vector3.up)
-            );
+            float distance =
+                Vector3.Distance(
+                    Vector3.ProjectOnPlane(
+                        transform.position,
+                        Vector3.up
+                    ),
+                    Vector3.ProjectOnPlane(
+                        wp.transform.position,
+                        Vector3.up
+                    )
+                );
 
             if (distance <= wp.zoneRadius)
             {
-                float zoneLimit = maxSpeed * wp.speedMultiplier;
+                float zoneLimit =
+                    maxSpeed *
+                    wp.speedMultiplier;
+
                 if (zoneLimit < minAllowedSpeed)
-                    minAllowedSpeed = zoneLimit;
+                {
+                    minAllowedSpeed =
+                        zoneLimit;
+                }
             }
         }
 
@@ -467,9 +742,12 @@ public class PrometeoSplineAIController : MonoBehaviour
 
     public void SetSplineIndex(int newIndex)
     {
-        if (splineContainer != null && newIndex >= 0 && newIndex < splineContainer.Splines.Count)
+        if (splineContainer != null &&
+            newIndex >= 0 &&
+            newIndex < splineContainer.Splines.Count)
         {
             splineIndex = newIndex;
         }
     }
 }
+
