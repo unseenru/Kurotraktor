@@ -3,6 +3,8 @@ using Zenject;
 
 public class SceneInstaller : MonoInstaller
 {
+    [SerializeField] private bool _isOnSeat;
+
     [Header("Configs")]
     [SerializeField] private GameSettingsSO _gameSettings;
 
@@ -51,7 +53,8 @@ public class SceneInstaller : MonoInstaller
     }
     private void BindControllers()
     {
-        Container.BindInterfacesAndSelfTo<PlayerInputController>().AsSingle();
+        if (!_isOnSeat)
+            Container.BindInterfacesAndSelfTo<PlayerInputController>().AsSingle();
     }
 
     private void BindSpawners()

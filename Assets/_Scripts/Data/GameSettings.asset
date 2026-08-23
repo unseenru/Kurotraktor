@@ -39,7 +39,7 @@ MonoBehaviour:
     FleeProfile:
       ARange: {x: 1, y: 2.5}
       BRange: {x: 3, y: 4.5}
-      MaxSpeed: 8
+      MaxSpeed: 20
     SeekFoodProfile:
       ARange: {x: 0.3, y: 0.8}
       BRange: {x: 1.5, y: 2.2}

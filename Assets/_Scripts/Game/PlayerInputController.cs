@@ -6,16 +6,16 @@ public class PlayerInputController : ITickable
 {
     private readonly IEntityRegistry<IEntity> _playerRegistry;
     private readonly CameraController _cameraController;
-    
+   
     public PlayerInputController(IEntityRegistry<IEntity> playerRegistry, CameraController cameraController)
     {
+        
         _playerRegistry = playerRegistry;
         _cameraController = cameraController;
     }
 
     public void Tick()
     {
-        // Берем игрока из коллекции AllEntities
         Player player = _playerRegistry.AllEntities.OfType<Player>().FirstOrDefault();
         if (player == null) return;
 
@@ -26,6 +26,15 @@ public class PlayerInputController : ITickable
 
         if (moveDirection.sqrMagnitude > 1f)
             moveDirection.Normalize();
+
+        // Поворот игрока в сторону, противоположную камере, только по Y
+        Vector3 lookDirection = player.transform.position - _cameraController.transform.position;
+        lookDirection.y = 0;
+
+        if (lookDirection.sqrMagnitude > 0.001f)
+        {
+            player.transform.rotation = Quaternion.LookRotation(lookDirection);
+        }
 
         player.Movement.Move(moveDirection);
     }

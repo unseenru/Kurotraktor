@@ -20601,9 +20601,33 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRACK_PLAYER
       objectReference: {fileID: 0}
+    - target: {fileID: 1129198997422914418, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3931816405940776121, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6532537228087791781, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
       propertyPath: _rayDistance
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6881948720253082582, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7169122866408038002, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
+      propertyPath: _isOnSeat
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7169122866408038002, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7288530448865702075, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7941147712754495746, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
       propertyPath: m_LocalPosition.x
@@ -20644,6 +20668,10 @@ PrefabInstance:
     - target: {fileID: 7941147712754495746, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8434091051199361824, guid: 6e56345d0ce50874da14ddd4ef276a91, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -21724,6 +21752,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4d7729d75b80bd45b847fa180c53c8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isOnSeat: 1
   _gameSettings: {fileID: 11400000, guid: 3c1694854b700d74ca4ecfeb33643a77, type: 2}
   _cameraController: {fileID: 698028089}
   _playerPrefab: {fileID: 230946039}

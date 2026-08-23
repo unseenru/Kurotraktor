@@ -138,7 +138,7 @@ public class VehicleSpawner : MonoBehaviour
         {
             if (component == null)
                 continue;
-
+            
             switch (component)
             {
                 case Behaviour behaviour:

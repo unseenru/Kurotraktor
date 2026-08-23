@@ -780,6 +780,9 @@ MonoBehaviour:
   maxLaneChangeCooldown: 4
   trackWaypoints:
   - {fileID: 0}
+  stuckSpeedThreshold: 0.1
+  stuckTime: 1
+  stuckTurnAngle: 45
 --- !u!95 &3025444071328805132
 Animator:
   serializedVersion: 5
@@ -2289,6 +2292,50 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 112cd5cf1189db24d8cd05cf8afde5c0, type: 2}
+    - target: {fileID: 4516168936227657665, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 8632993429437876281, guid: 28d714fb7d4a0074d8376a80672e0417, type: 3}
+    - target: {fileID: 5639405848544218604, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5639405848544218604, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5639405848544218604, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5639405848544218604, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.836
+      objectReference: {fileID: 0}
+    - target: {fileID: 5639405848544218604, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.28
+      objectReference: {fileID: 0}
+    - target: {fileID: 5639405848544218604, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5639405848544218604, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 5639405848544218604, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 5639405848544218604, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5639405848544218604, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
+      objectReference: {fileID: 0}
     - target: {fileID: 7024560700566606290, guid: 59cdc7494e9c8a14791af543d7eb0bab, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
